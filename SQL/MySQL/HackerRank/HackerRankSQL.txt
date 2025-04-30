@@ -1,0 +1,51 @@
+1. select * from city where population > 100000 and countrycode = 'USA';
+
+2. select name from city where population > 120000 and countrycode in ('USA');
+
+3. select * from city;
+
+4. select * from city where id = 1661;
+
+5. select * from city where countrycode in ('JPN');
+
+6. select name from city where countrycode in ('JPN');
+
+7. select city, state from station;
+
+8. select distinct(city) from station where mod(id,2) = 0;
+
+9. select count(city)-count(distinct(city)) from station;
+
+10. select distinct city from station where substring(city,1,1) in ('a','e','i','o','u');
+
+11. select distinct city from station where right(city,1) in ('a','e','i','o','u');
+
+12. select distinct city from station where left(city,1) in ('a','e','i','o','u') and right(city,1) in ('a','e','i','o','u');
+
+13. select distinct city from station where left(city,1) not in ('a','e','i','o','u');
+
+14. select distinct city from station where right(city,1) not in ('a','e','i','o','u');
+
+15. select distinct city from station where right(city,1) not in ('a','e','i','o','u') or left(city,1) not in ('a','e','i','o','u');
+
+16. select distinct city from station where right(city,1) not in ('a','e','i','o','u') and left(city,1) not in ('a','e','i','o','u');
+
+17. select name from students where marks > 75 order by right(name,3), id;
+
+18. select name from employee order by name;
+
+19. select name from employee where salary > 2000 and months < 10 order by employee_id;
+
+20. select max(population)-min(population) from city;
+
+21. select ceil(avg(salary) - avg(replace(salary,0,""))) from employees;
+
+22. select salary * months as `maxSal`,count(*) from employee group by salary * months order by `maxSal` desc limit 1;
+
+23. select round(sum(LAT_N),2), round(sum(LONG_W),2) from station;
+
+24. select truncate(sum(LAT_N),4) from station where LAT_N > 38.7880 and LAT_N < 137.2345;
+
+25. select truncate(max(LAT_N),4) from station where LAT_N < 137.2345;
+
+26. select round(LONG_W,4) from station where LAT_N < 137.2345 order by LAT_N desc limit 1;
