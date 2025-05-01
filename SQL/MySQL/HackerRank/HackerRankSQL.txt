@@ -49,3 +49,38 @@
 25. select truncate(max(LAT_N),4) from station where LAT_N < 137.2345;
 
 26. select round(LONG_W,4) from station where LAT_N < 137.2345 order by LAT_N desc limit 1;
+
+27. (select city, length(city) from station order by length(city), city limit 1)
+union
+(select city, length(city) from station order by length(city) desc, city desc limit 1);
+
+28. 
+select 
+case
+when g.grade >= 8 then s.name
+else null
+end as nameCol, 
+g.grade, s.marks
+from students s, grades g
+where s.marks between g.min_mark and g.max_mark
+order by g.grade desc, if(g.grade>=8, nameCol,s.marks);
+
+or 
+
+select case when g.grade >= 8 then s.name else null end as namecol, g.grade, s.marks from students s left join grades g on s.marks between g.min_mark and g.max_mark order by g.grade desc, namecol, s.marks;
+
+29. 
+select 
+case 
+when a = b and a = c and b = c then "Equilateral"
+when (a+b <= c) or (b+c <= a) or (a+c <= b) then "Not A Triangle"
+when a=b or b=c or a=c then "Isosceles"
+else "Scalene"
+end as output
+from Triangles;
+
+30. 
+select concat(name, '(', left(Occupation,1),')') from occupations order by 1 asc;
+select concat('There are a total of ', count(*), ' ' , lower(occupation) , 's.') from occupations group by occupation order by count(occupation) asc;
+
+31.  
