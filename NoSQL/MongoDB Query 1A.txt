@@ -1,0 +1,87 @@
+
+C:\Users\Govind>mongosh
+Current Mongosh Log ID: 68248da144ba725b0bb5f898
+Connecting to:          mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.5.0
+Using MongoDB:          8.0.8
+Using Mongosh:          2.5.0
+mongosh 2.5.1 is available for download: https://www.mongodb.com/try/download/shell
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2025-04-25T11:18:09.216+05:30: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+------
+
+test> show dbs
+admin    40.00 KiB
+config  108.00 KiB
+local    40.00 KiB
+test> use bookdb
+switched to db bookdb
+bookdb> db
+bookdb
+bookdb> show dbs
+admin    40.00 KiB
+config  108.00 KiB
+local    40.00 KiB
+bookdb> db.createCollection("books")
+{ ok: 1 }
+bookdb> show dbs
+admin    40.00 KiB
+bookdb    8.00 KiB
+config  108.00 KiB
+local    40.00 KiB
+bookdb> show collections
+books
+bookdb> db.books.drop()
+true
+bookdb> show collections
+
+bookdb> show dbs
+admin    40.00 KiB
+config  108.00 KiB
+local    40.00 KiB
+bookdb> db.dropDatabase()
+{ ok: 1, dropped: 'bookdb' }
+bookdb> use test
+switched to db test
+test> show dbs
+admin    40.00 KiB
+config  108.00 KiB
+local    40.00 KiB
+
+
+
+| **Query**                           | **Purpose**                                                                  |
+| ----------------------------------- | ---------------------------------------------------------------------------- |
+| `mongosh`                           | Starts the MongoDB shell to interact with your database                      |
+| `show dbs`                          | Lists all databases that currently have data (non-empty)                     |
+| `use bookdb`                        | Switches to the `bookdb` database (creates it in memory if it doesn't exist) |
+| `db`                                | Displays the current database in use                                         |
+| `db.createCollection("books")`      | Creates a new collection named `books` in the `bookdb` database              |
+| `show collections`                  | Lists all collections in the current database                                |
+| `db.books.drop()`                   | Deletes (drops) the `books` collection from `bookdb`                         |
+| `db.dropDatabase()`                 | Deletes the **entire `bookdb` database**                                     |
+| `use test`                          | Switches to the `test` database                                              |
+| `show collections` (after dropping) | Used to confirm the collection was dropped (returns nothing)                 |
+| `show dbs` (after dropping)         | Used to confirm the database no longer appears in the list if it's empty     |
+
+
+
+
+
+
+
+
+
+
+| Command                       | Purpose                                      |
+| ----------------------------- | -------------------------------------------- |
+| `use <dbName>`                | Switch to or create a database               |
+| `show dbs`                    | List all databases (that contain data)       |
+| `show collections`            | List all collections in the current database |
+| `db`                          | Show the current database you're using       |
+| `db.createCollection("name")` | Explicitly create a new collection           |
+| `db.collection.drop()`        | Drop (delete) a collection                   |
+| `db.dropDatabase()`           | Delete the current database                  |
