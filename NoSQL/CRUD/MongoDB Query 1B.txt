@@ -1,0 +1,153 @@
+test> use bookdb
+switched to db bookdb
+bookdb> db.createCollection("books")
+{ ok: 1 }
+bookdb> db.books.insertOne({
+... "title":"MongoDB",
+... "type":"NoSQL",
+... "price":90
+... })
+{
+  acknowledged: true,
+  insertedId: ObjectId('682583127f1fdc77cab5f899')
+}
+bookdb> db.books.find()
+[
+  {
+    _id: ObjectId('682583127f1fdc77cab5f899'),
+    title: 'MongoDB',
+    type: 'NoSQL',
+    price: 90
+  }
+]
+bookdb> db.books.insertOne({
+... "title":"MySQL",
+... "type":"SQL",
+... "price":100,
+... "_id":101
+... })
+{ acknowledged: true, insertedId: 101 }
+bookdb> db.books.find()
+[
+  {
+    _id: ObjectId('682583127f1fdc77cab5f899'),
+    title: 'MongoDB',
+    type: 'NoSQL',
+    price: 90
+  },
+  { _id: 101, title: 'MySQL', type: 'SQL', price: 100 }
+
+bookdb> db.books.insertMany([
+... {"title":"Oracle","type":"SQL","price":120},
+... {"title":"Neo4j","type":"Graph-NoSQL","price":150}
+... ],{"ordered":true})
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('68258717b63ba7bc41b5f899'),
+    '1': ObjectId('68258717b63ba7bc41b5f89a')
+  }
+}
+bookdb> db.books.find()
+[
+  {
+    _id: ObjectId('682583127f1fdc77cab5f899'),
+    title: 'MongoDB',
+    type: 'NoSQL',
+    price: 90
+  },
+  { _id: 101, title: 'MySQL', type: 'SQL', price: 100 },
+  {
+    _id: ObjectId('68258717b63ba7bc41b5f899'),
+    title: 'Oracle',
+    type: 'SQL',
+    price: 120
+  },
+  {
+    _id: ObjectId('68258717b63ba7bc41b5f89a'),
+    title: 'Neo4j',
+    type: 'Graph-NoSQL',
+    price: 150
+  }
+]
+bookdb> db.books.insertMany(
+...    [{ _id: 3, title:  "SQL Performance Tuning", isbn: "0-6799-2974-6"},
+...    { _id: 3, title:  "SQL Trees", isbn: "0-6998-1556-8"},
+...    { _id: 4, title:  "SQL Graph", isbn: "0-6426-4996-0"},
+...    { _id: 5, title:  "NoSQL Pros", isbn: "0-9602-9886-X"}],
+...    { ordered: false }
+... );
+Uncaught:
+MongoBulkWriteError: E11000 duplicate key error collection: bookdb.books index: _id_ dup key: { _id: 3 }
+Result: BulkWriteResult {
+  insertedCount: 3,
+  matchedCount: 0,
+  modifiedCount: 0,
+  deletedCount: 0,
+  upsertedCount: 0,
+  upsertedIds: {},
+  insertedIds: { '0': 3, '2': 4, '3': 5 }
+}
+Write Errors: [
+  WriteError {
+    err: {
+      index: 1,
+      code: 11000,
+      errmsg: 'E11000 duplicate key error collection: bookdb.books index: _id_ dup key: { _id: 3 }',
+      errInfo: undefined,
+      op: { _id: 3, title: 'SQL Trees', isbn: '0-6998-1556-8' }
+    }
+  }
+]
+bookdb> db.books.find()
+[
+  {
+    _id: ObjectId('682583127f1fdc77cab5f899'),
+    title: 'MongoDB',
+    type: 'NoSQL',
+    price: 90
+  },
+  { _id: 101, title: 'MySQL', type: 'SQL', price: 100 },
+  {
+    _id: ObjectId('68258717b63ba7bc41b5f899'),
+    title: 'Oracle',
+    type: 'SQL',
+    price: 120
+  },
+  {
+    _id: ObjectId('68258717b63ba7bc41b5f89a'),
+    title: 'Neo4j',
+    type: 'Graph-NoSQL',
+    price: 150
+  },
+  { _id: 3, title: 'SQL Performance Tuning', isbn: '0-6799-2974-6' },
+  { _id: 4, title: 'SQL Graph', isbn: '0-6426-4996-0' },
+  { _id: 5, title: 'NoSQL Pros', isbn: '0-9602-9886-X' }
+]
+bookdb>
+
+
+1. insertOne() syntax:-
+
+db.collection.insertOne(
+   <document>,
+   { writeConcern: <document>}
+)
+
+
+
+2. insertMany() syntax:-
+
+db.collection.insertMany(
+   [document1, document2, ...],
+   {
+      writeConcern: <document>,
+      ordered: <boolean>
+   }
+)
+
+Error handling
+The insertMany() throws a BulkWriteError exception in case of an error.
+
+If an error occurs, the ordered insert will stop while the unordered insert will continue to process for the remaining documents in the queue.
+

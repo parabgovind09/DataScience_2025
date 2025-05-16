@@ -1,0 +1,594 @@
+bookdb> db.products.insertMany([
+...     { "_id" : 1, "name" : "xPhone", "price" : 799, "releaseDate": ISODate("2011-05-14"), "spec" : { "ram" : 4, "screen" : 6.5, "cpu" : 2.66 },"color":["white","black"],"storage":[64,128,256]},
+...     { "_id" : 2, "name" : "xTablet", "price" : 899, "releaseDate": ISODate("2011-09-01") , "spec" : { "ram" : 16, "screen" : 9.5, "cpu" : 3.66 },"color":["white","black","purple"],"storage":[128,256,512]},
+...     { "_id" : 3, "name" : "SmartTablet", "price" : 899, "releaseDate": ISODate("2015-01-14"), "spec" : { "ram" : 12, "screen" : 9.7, "cpu" : 3.66 },"color":["blue"],"storage":[16,64,128]},
+...     { "_id" : 4, "name" : "SmartPad", "price" : 699, "releaseDate": ISODate("2020-05-14"),"spec" : { "ram" : 8, "screen" : 9.7, "cpu" : 1.66 },"color":["white","orange","gold","gray"],"storage":[128,256,1024]},
+...     { "_id" : 5, "name" : "SmartPhone", "price" : 599,"releaseDate": ISODate("2022-09-14"), "spec" : { "ram" : 4, "screen" : 5.7, "cpu" : 1.66 },"color":["white","orange","gold","gray"],"storage":[128,256]}
+...  ])
+{
+  acknowledged: true,
+  insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }
+}
+bookdb> db.products.updateOne({"_id":1},{$set:{"price":899}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 899,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 4, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+bookdb> db.products.updateOne({"_id":4},{$set:{"spec.ram":16}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne({"_id":4})
+{
+  _id: 4,
+  name: 'SmartPad',
+  price: 699,
+  releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+  spec: { ram: 16, screen: 9.7, cpu: 1.66 },
+  color: [ 'white', 'orange', 'gold', 'gray' ],
+  storage: [ 128, 256, 1024 ]
+}
+bookdb> db.products.updateOne({"_id":4},{$set:{"color.0":"red","storage.1":512}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne({"_id":4})
+{
+  _id: 4,
+  name: 'SmartPad',
+  price: 699,
+  releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+  spec: { ram: 16, screen: 9.7, cpu: 1.66 },
+  color: [ 'red', 'orange', 'gold', 'gray' ],
+  storage: [ 128, 512, 1024 ]
+}
+bookdb> db.products.updateOne({"_id":4},{$set:{"color.5":"green"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne({"_id":4})
+{
+  _id: 4,
+  name: 'SmartPad',
+  price: 699,
+  releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+  spec: { ram: 16, screen: 9.7, cpu: 1.66 },
+  color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+  storage: [ 128, 512, 1024 ]
+}
+
+
+bookdb> db.products.updateMany({"price":{$in:[899,799]}},{$set:{"price":850}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 3,
+  modifiedCount: 3,
+  upsertedCount: 0
+}
+bookdb> db.products.find()
+[
+  {
+    _id: 1,
+    name: 'xPhone',
+    price: 850,
+    releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+    spec: { ram: 4, screen: 6.5, cpu: 2.66 },
+    color: [ 'white', 'black' ],
+    storage: [ 64, 128, 256 ]
+  },
+  {
+    _id: 2,
+    name: 'xTablet',
+    price: 850,
+    releaseDate: ISODate('2011-09-01T00:00:00.000Z'),
+    spec: { ram: 16, screen: 9.5, cpu: 3.66 },
+    color: [ 'white', 'black', 'purple' ],
+    storage: [ 128, 256, 512 ]
+  },
+  {
+    _id: 3,
+    name: 'SmartTablet',
+    price: 850,
+    releaseDate: ISODate('2015-01-14T00:00:00.000Z'),
+    spec: { ram: 12, screen: 9.7, cpu: 3.66 },
+    color: [ 'blue' ],
+    storage: [ 16, 64, 128 ]
+  },
+  {
+    _id: 4,
+    name: 'SmartPad',
+    price: 699,
+    releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+    spec: { ram: 16, screen: 9.7, cpu: 1.66 },
+    color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+    storage: [ 128, 512, 1024 ]
+  },
+  {
+    _id: 5,
+    name: 'SmartPhone',
+    price: 599,
+    releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+    spec: { ram: 4, screen: 5.7, cpu: 1.66 },
+    color: [ 'white', 'orange', 'gold', 'gray' ],
+    storage: [ 128, 256 ]
+  }
+]
+
+
+
+bookdb> db.products.updateOne({"_id":1},{$inc:{"price":50}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 900,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 4, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+bookdb> db.products.updateOne({"_id":1},{$inc:{"price":-250,"spec.ram":-1}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 650,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+
+
+
+bookdb> db.products.updateOne({"_id":1},{$min:{"price":550}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 550,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+bookdb> db.products.updateOne({"_id":1},{$min:{"price":650}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 550,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+
+
+bookdb> db.products.updateOne({"_id":1},{$max:{"price":650}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 650,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+bookdb> db.products.updateOne({"_id":1},{$max:{"price":550}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 650,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 64, 128, 256 ]
+}
+
+
+
+bookdb>  db.products.updateOne({ _id: 5 }, { $mul: { price: 1.1 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne({"_id":5},{})
+{
+  _id: 5,
+  name: 'SmartPhone',
+  price: 658.9000000000001,
+  releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+  spec: { ram: 4, screen: 5.7, cpu: 1.66 },
+  color: [ 'white', 'orange', 'gold', 'gray' ],
+  storage: [ 128, 256 ]
+}
+bookdb> db.products.updateOne({
+...     _id: 1
+... }, {
+...     $mul: {
+...         "storage.0": 2,
+...         "storage.1": 2,
+...         "storage.2": 2
+...     }
+... })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  price: 650,
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 3, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 128, 256, 512 ]
+}
+bookdb> db.products.updateMany({}, {
+...     $mul: {
+...         "spec.ram": 2
+...     }
+... })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 5,
+  modifiedCount: 5,
+  upsertedCount: 0
+}
+bookdb> db.products.find()
+[
+  {
+    _id: 1,
+    name: 'xPhone',
+    price: 650,
+    releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+    spec: { ram: 6, screen: 6.5, cpu: 2.66 },
+    color: [ 'white', 'black' ],
+    storage: [ 128, 256, 512 ]
+  },
+  {
+    _id: 2,
+    name: 'xTablet',
+    price: 850,
+    releaseDate: ISODate('2011-09-01T00:00:00.000Z'),
+    spec: { ram: 32, screen: 9.5, cpu: 3.66 },
+    color: [ 'white', 'black', 'purple' ],
+    storage: [ 128, 256, 512 ]
+  },
+  {
+    _id: 3,
+    name: 'SmartTablet',
+    price: 850,
+    releaseDate: ISODate('2015-01-14T00:00:00.000Z'),
+    spec: { ram: 24, screen: 9.7, cpu: 3.66 },
+    color: [ 'blue' ],
+    storage: [ 16, 64, 128 ]
+  },
+  {
+    _id: 4,
+    name: 'SmartPad',
+    price: 699,
+    releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+    spec: { ram: 32, screen: 9.7, cpu: 1.66 },
+    color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+    storage: [ 128, 512, 1024 ]
+  },
+  {
+    _id: 5,
+    name: 'SmartPhone',
+    price: 658.9000000000001,
+    releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+    spec: { ram: 8, screen: 5.7, cpu: 1.66 },
+    color: [ 'white', 'orange', 'gold', 'gray' ],
+    storage: [ 128, 256 ]
+  }
+]
+
+
+
+
+bookdb> db.products.updateOne({"_id":1},{$unset:{"price":""}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { ram: 6, screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 128, 256, 512 ]
+}
+bookdb> db.products.updateOne({"_id":1},{$unset:{"spec.ram":""}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ 128, 256, 512 ]
+}
+
+
+bookdb> db.products.updateOne({"_id":1},{$unset:{"storage.0":""}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+bookdb> db.products.findOne()
+{
+  _id: 1,
+  name: 'xPhone',
+  releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+  spec: { screen: 6.5, cpu: 2.66 },
+  color: [ 'white', 'black' ],
+  storage: [ null, 256, 512 ]
+}
+
+
+bookdb> db.products.updateMany({},{$rename:{"spec":"specification"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 5,
+  modifiedCount: 5,
+  upsertedCount: 0
+}
+bookdb> db.products.find()
+[
+  {
+    _id: 1,
+    name: 'xPhone',
+    releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+    color: [ 'white', 'black' ],
+    storage: [ null, 256, 512 ],
+    specification: { screen: 6.5, cpu: 2.66 }
+  },
+  {
+    _id: 2,
+    name: 'xTablet',
+    price: 850,
+    releaseDate: ISODate('2011-09-01T00:00:00.000Z'),
+    color: [ 'white', 'black', 'purple' ],
+    storage: [ 128, 256, 512 ],
+    specification: { ram: 32, screen: 9.5, cpu: 3.66 }
+  },
+  {
+    _id: 3,
+    name: 'SmartTablet',
+    price: 850,
+    releaseDate: ISODate('2015-01-14T00:00:00.000Z'),
+    color: [ 'blue' ],
+    storage: [ 16, 64, 128 ],
+    specification: { ram: 24, screen: 9.7, cpu: 3.66 }
+  },
+  {
+    _id: 4,
+    name: 'SmartPad',
+    price: 699,
+    releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+    color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+    storage: [ 128, 512, 1024 ],
+    specification: { ram: 32, screen: 9.7, cpu: 1.66 }
+  },
+  {
+    _id: 5,
+    name: 'SmartPhone',
+    price: 658.9000000000001,
+    releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+    color: [ 'white', 'orange', 'gold', 'gray' ],
+    storage: [ 128, 256 ],
+    specification: { ram: 8, screen: 5.7, cpu: 1.66 }
+  }
+]
+bookdb> db.products.updateMany({},{$rename:{"specification.screen":"specification.screenSize"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 5,
+  modifiedCount: 5,
+  upsertedCount: 0
+}
+bookdb> db.products.find()
+[
+  {
+    _id: 1,
+    name: 'xPhone',
+    releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+    color: [ 'white', 'black' ],
+    storage: [ null, 256, 512 ],
+    specification: { cpu: 2.66, screenSize: 6.5 }
+  },
+  {
+    _id: 2,
+    name: 'xTablet',
+    price: 850,
+    releaseDate: ISODate('2011-09-01T00:00:00.000Z'),
+    color: [ 'white', 'black', 'purple' ],
+    storage: [ 128, 256, 512 ],
+    specification: { ram: 32, cpu: 3.66, screenSize: 9.5 }
+  },
+  {
+    _id: 3,
+    name: 'SmartTablet',
+    price: 850,
+    releaseDate: ISODate('2015-01-14T00:00:00.000Z'),
+    color: [ 'blue' ],
+    storage: [ 16, 64, 128 ],
+    specification: { ram: 24, cpu: 3.66, screenSize: 9.7 }
+  },
+  {
+    _id: 4,
+    name: 'SmartPad',
+    price: 699,
+    releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+    color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+    storage: [ 128, 512, 1024 ],
+    specification: { ram: 32, cpu: 1.66, screenSize: 9.7 }
+  },
+  {
+    _id: 5,
+    name: 'SmartPhone',
+    price: 658.9000000000001,
+    releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+    color: [ 'white', 'orange', 'gold', 'gray' ],
+    storage: [ 128, 256 ],
+    specification: { ram: 8, cpu: 1.66, screenSize: 5.7 }
+  }
+]
+
+bookdb> db.products.updateMany({},{$rename:{"specification.screenSize":"screenSize"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 5,
+  modifiedCount: 5,
+  upsertedCount: 0
+}
+bookdb> db.products.find()
+[
+  {
+    _id: 1,
+    name: 'xPhone',
+    releaseDate: ISODate('2011-05-14T00:00:00.000Z'),
+    color: [ 'white', 'black' ],
+    storage: [ null, 256, 512 ],
+    specification: { cpu: 2.66 },
+    screenSize: 6.5
+  },
+  {
+    _id: 2,
+    name: 'xTablet',
+    price: 850,
+    releaseDate: ISODate('2011-09-01T00:00:00.000Z'),
+    color: [ 'white', 'black', 'purple' ],
+    storage: [ 128, 256, 512 ],
+    specification: { ram: 32, cpu: 3.66 },
+    screenSize: 9.5
+  },
+  {
+    _id: 3,
+    name: 'SmartTablet',
+    price: 850,
+    releaseDate: ISODate('2015-01-14T00:00:00.000Z'),
+    color: [ 'blue' ],
+    storage: [ 16, 64, 128 ],
+    specification: { ram: 24, cpu: 3.66 },
+    screenSize: 9.7
+  },
+  {
+    _id: 4,
+    name: 'SmartPad',
+    price: 699,
+    releaseDate: ISODate('2020-05-14T00:00:00.000Z'),
+    color: [ 'red', 'orange', 'gold', 'gray', null, 'green' ],
+    storage: [ 128, 512, 1024 ],
+    specification: { ram: 32, cpu: 1.66 },
+    screenSize: 9.7
+  },
+  {
+    _id: 5,
+    name: 'SmartPhone',
+    price: 658.9000000000001,
+    releaseDate: ISODate('2022-09-14T00:00:00.000Z'),
+    color: [ 'white', 'orange', 'gold', 'gray' ],
+    storage: [ 128, 256 ],
+    specification: { ram: 8, cpu: 1.66 },
+    screenSize: 5.7
+  }
+]
