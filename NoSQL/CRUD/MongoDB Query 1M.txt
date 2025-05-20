@@ -1,0 +1,80 @@
+
+customers> db.customers.insertMany([
+...   { _id: 1, firstName: "John", lastName: "Doe", email: "john.doe@example.com" },
+...   { _id: 2, firstName: "jane", lastName: "smith", email: "jane.SMITH@example.com" },
+...   { _id: 3, firstName: "Alice", lastName: "Brown", email: "alice.b@example.com" }
+... ]);
+...
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }
+customers> db.customers.aggregate([{$project:{"FullName":{$concat:["$firstName","$lastName"]}}}])
+[
+  { _id: 1, FullName: 'JohnDoe' },
+  { _id: 2, FullName: 'janesmith' },
+  { _id: 3, FullName: 'AliceBrown' }
+]
+customers> db.customers.aggregate([
+...   {
+...     $project: {
+...       compareNames: { $strcasecmp: ["$firstName", "$lastName"] }
+...     }
+...   }
+... ])
+...
+[
+  { _id: 1, compareNames: 1 },
+  { _id: 2, compareNames: -1 },
+  { _id: 3, compareNames: -1 }
+
+users> db.user.insertMany([
+...   { "_id": 1, "name": "Alice", "email": "alice@example.com", "age": 28 },
+...   { "_id": 2, "name": "Bob", "age": 35 },                            // No email field
+...   { "_id": 3, "name": "Charlie", "email": null, "age": 22 },
+...   { "_id": 4, "name": "David", "email": "david@example.com", "age": 30 }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4 } }
+users> db.user.find({ email: { $in: [null, undefined] } });
+[
+  { _id: 2, name: 'Bob', age: 35 },
+  { _id: 3, name: 'Charlie', email: null, age: 22 }
+]
+users> db.user.find({ email: { $exists: false } });
+[ { _id: 2, name: 'Bob', age: 35 } ]
+users> db.user.find({ email: null });
+[
+  { _id: 2, name: 'Bob', age: 35 },
+  { _id: 3, name: 'Charlie', email: null, age: 22 }
+]
+
+
+
+users> db.user.findAndModify({
+...   query: { name: "Charlie" },
+...   update: { $set: { age: 25 } },
+...   new: true
+... });
+...
+{ _id: 3, name: 'Charlie', email: null, age: 25 }
+users> db.user.findOneAndDelete({ name: "Bob" });
+{ _id: 2, name: 'Bob', age: 35 }
+users> db.user.findOneAndUpdate(
+...   { name: "David" },
+...   { $set: { age: 31 } },
+...   { returnDocument: "after" }
+... );
+...
+{ _id: 4, name: 'David', email: 'david@example.com', age: 31 }
+users> db.user.findOneAndReplace(
+...   { name: "Alice" },
+...   { name: "Alice", email: "alice@newdomain.com", city: "Boston" },
+...   { returnDocument: "after" }
+... );
+...
+{ _id: 1, name: 'Alice', email: 'alice@newdomain.com', city: 'Boston' }
+users>
+
+
+
+
+
+

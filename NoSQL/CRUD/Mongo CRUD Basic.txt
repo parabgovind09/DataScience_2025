@@ -1,0 +1,169 @@
+// MongoDB CRUD Examples Using a Single Database and Collection
+
+// 1. Use Database
+use libraryDB
+
+// 2. Insert Documents
+// insertOne()
+db.books.insertOne({
+  title: "MongoDB Essentials",
+  author: "John Doe",
+  year: 2023,
+  genres: ["Database", "NoSQL"],
+  price: 49.99,
+  publisher: { name: "TechBooks", country: "USA" }
+})
+
+// insertMany()
+db.books.insertMany([
+  {
+    title: "Learning Python",
+    author: "Jane Smith",
+    year: 2021,
+    genres: ["Programming"],
+    price: 39.99
+  },
+  {
+    title: "Advanced Java",
+    author: "Mike Brown",
+    year: 2022,
+    genres: ["Programming", "Java"],
+    price: 44.99
+  },
+  {
+    title: "Data Structures",
+    author: "John Doe",
+    year: 2020,
+    genres: ["Computer Science"],
+    price: 35.00
+  }
+])
+
+// 3. Find Documents
+// findOne()
+db.books.findOne({ author: "Jane Smith" })
+
+// find()
+db.books.find({ author: "John Doe" })
+
+// Projection
+db.books.find({ author: "John Doe" }, { _id: 0, title: 1, year: 1 })
+
+// 4. Comparison Query Operators
+// $eq
+db.books.find({ year: { $eq: 2021 } })
+
+// $gt
+db.books.find({ price: { $gt: 40 } })
+
+// $gte
+db.books.find({ price: { $gte: 44.99 } })
+
+// $lt
+db.books.find({ price: { $lt: 40 } })
+
+// $lte
+db.books.find({ price: { $lte: 39.99 } })
+
+// $ne
+db.books.find({ author: { $ne: "John Doe" } })
+
+// $in
+db.books.find({ year: { $in: [2020, 2021] } })
+
+// $nin
+db.books.find({ year: { $nin: [2022, 2023] } })
+
+// 5. Logical Query Operators
+// $and
+db.books.find({ $and: [{ author: "John Doe" }, { price: { $lt: 50 } }] })
+
+// $or
+db.books.find({ $or: [{ author: "John Doe" }, { year: 2021 }] })
+
+// $not
+db.books.find({ price: { $not: { $gte: 40 } } })
+
+// $nor
+db.books.find({ $nor: [{ author: "Mike Brown" }, { year: 2022 }] })
+
+// 6. Element Query Operators
+// $exists
+db.books.find({ publisher: { $exists: true } })
+
+// $type
+db.books.find({ year: { $type: "int" } })
+
+// 7. Querying Arrays
+// $size
+db.books.find({ genres: { $size: 2 } })
+
+// $all
+db.books.find({ genres: { $all: ["Programming", "Java"] } })
+
+// $elemMatch
+db.books.find({ genres: { $elemMatch: { $eq: "Database" } } })
+
+// 8. Sorting and Limiting
+// sort()
+db.books.find().sort({ price: 1 })
+db.books.find().sort({ year: -1 })
+
+// limit()
+db.books.find().limit(2)
+
+// 9. Update Documents
+// updateOne()
+db.books.updateOne(
+  { title: "Advanced Java" },
+  { $set: { price: 42.00 } }
+)
+
+// updateMany()
+db.books.updateMany(
+  { author: "John Doe" },
+  { $set: { publisher: { name: "CodePress", country: "UK" } } }
+)
+
+// $inc
+db.books.updateOne(
+  { title: "Learning Python" },
+  { $inc: { price: 5 } }
+)
+
+// $min
+db.books.updateOne(
+  { title: "Data Structures" },
+  { $min: { price: 30 } }
+)
+
+// $max
+db.books.updateOne(
+  { title: "MongoDB Essentials" },
+  { $max: { price: 55 } }
+)
+
+// $mul
+db.books.updateOne(
+  { title: "Learning Python" },
+  { $mul: { price: 1.1 } }
+)
+
+// $unset
+db.books.updateOne(
+  { title: "Advanced Java" },
+  { $unset: { publisher: "" } }
+)
+
+// $rename
+db.books.updateOne(
+  { title: "MongoDB Essentials" },
+  { $rename: { price: "cost" } }
+)
+
+// 10. Deleting Documents
+// deleteOne()
+db.books.deleteOne({ title: "Learning Python" })
+
+// deleteMany()
+db.books.deleteMany({ author: "John Doe" })

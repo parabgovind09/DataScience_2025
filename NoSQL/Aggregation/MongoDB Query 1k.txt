@@ -1,0 +1,140 @@
+SQL clause			MongoDB Aggregation
+select				$project
+$group functions: 		$avg, $count, $sum, $max, $min
+from				db.collection.aggregate(…)
+join				$unwind
+where				$match
+group by			$group
+having				$match
+
+
+coffeeshop> db.sales.insertMany([
+...     { "_id" : 1, "item" : "Americanos", "price" : 5, "size": "Short", "quantity" : 22, "date" : ISODate("2022-01-15T08:00:00Z") },
+...     { "_id" : 2, "item" : "Cappuccino", "price" : 6, "size": "Short","quantity" : 12, "date" : ISODate("2022-01-16T09:00:00Z") },
+...     { "_id" : 3, "item" : "Lattes", "price" : 15, "size": "Grande","quantity" : 25, "date" : ISODate("2022-01-16T09:05:00Z") },
+...     { "_id" : 4, "item" : "Mochas", "price" : 25,"size": "Tall", "quantity" : 11, "date" : ISODate("2022-02-17T08:00:00Z") },
+...     { "_id" : 5, "item" : "Americanos", "price" : 10, "size": "Grande","quantity" : 12, "date" : ISODate("2022-02-18T21:06:00Z") },
+...     { "_id" : 6, "item" : "Cappuccino", "price" : 7, "size": "Tall","quantity" : 20, "date" : ISODate("2022-02-20T10:07:00Z") },
+...     { "_id" : 7, "item" : "Lattes", "price" : 25,"size": "Tall", "quantity" : 30, "date" : ISODate("2022-02-21T10:08:00Z") },
+...     { "_id" : 8, "item" : "Americanos", "price" : 10, "size": "Grande","quantity" : 21, "date" : ISODate("2022-02-22T14:09:00Z") },
+...     { "_id" : 9, "item" : "Cappuccino", "price" : 10, "size": "Grande","quantity" : 17, "date" : ISODate("2022-02-23T14:09:00Z") },
+...     { "_id" : 10, "item" : "Americanos", "price" : 8, "size": "Tall","quantity" : 15, "date" : ISODate("2022-02-25T14:09:00Z")}
+... ]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7,
+    '7': 8,
+    '8': 9,
+    '9': 10
+  }
+}
+coffeeshop> db.sales.aggregate([{$match:{"item":"Americanos"}},{$group:{"size":"$size","totalAmt":{$sum:"$quantity"}}},{$sort:{"totalAmt":-1}}])
+coffeeshop> db.sales.aggregate([{$match:{"item":"Americanos"}},{$group:{"_id":"$size","totalAmt":{$sum:"$quantity"}}},{$sort:{"totalAmt":-1}}])
+[
+  { _id: 'Grande', totalAmt: 33 },
+  { _id: 'Short', totalAmt: 22 },
+  { _id: 'Tall', totalAmt: 15 }
+]
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","avgAmt":{$avg:"$quantity"}}}])
+[
+  { _id: 'Cappuccino', avgAmt: 16.333333333333332 },
+  { _id: 'Mochas', avgAmt: 11 },
+  { _id: 'Lattes', avgAmt: 27.5 },
+  { _id: 'Americanos', avgAmt: 17.5 }
+]
+
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","averageAmt":{$avg:"$quantity"}}}])
+[
+  { _id: 'Cappuccino', averageAmt: 16.333333333333332 },
+  { _id: 'Mochas', averageAmt: 11 },
+  { _id: 'Lattes', averageAmt: 27.5 },
+  { _id: 'Americanos', averageAmt: 17.5 }
+]
+
+coffeeshop> db.sales.aggregate([
+...   { $project: { item: 1, totalCost: { $multiply: ["$price", "$quantity"] } } }
+... ])
+...
+[
+  { _id: 1, item: 'Americanos', totalCost: 110 },
+  { _id: 2, item: 'Cappuccino', totalCost: 72 },
+  { _id: 3, item: 'Lattes', totalCost: 375 },
+  { _id: 4, item: 'Mochas', totalCost: 275 },
+  { _id: 5, item: 'Americanos', totalCost: 120 },
+  { _id: 6, item: 'Cappuccino', totalCost: 140 },
+  { _id: 7, item: 'Lattes', totalCost: 750 },
+  { _id: 8, item: 'Americanos', totalCost: 210 },
+  { _id: 9, item: 'Cappuccino', totalCost: 170 },
+  { _id: 10, item: 'Americanos', totalCost: 120 }
+]
+
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","avgAmt":{$avg:{$multiply:["$quantity","$price"]}}}},{$match:{"avgAmt":{$gt:150}}},{$sort:{"avgamt":-1}}])
+[ { _id: 'Mochas', avgAmt: 275 }, { _id: 'Lattes', avgAmt: 562.5 } ]
+
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","totalCount":{$count:{}}}}])
+[
+  { _id: 'Americanos', totalCount: 4 },
+  { _id: 'Cappuccino', totalCount: 3 },
+  { _id: 'Mochas', totalCount: 1 },
+  { _id: 'Lattes', totalCount: 2 }
+]
+
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","totalCount":{$count:{}}}},{$match:{"totalCount":{$gt:3}}}])
+[ { _id: 'Americanos', totalCount: 4 } ]
+
+
+coffeeshop> db.sales.aggregate([
+...   {
+...     $group: {
+...       _id: '$item',
+...       maxQty: { $max: '$quantity' },
+...     },
+...   },
+... ]);
+[
+  { _id: 'Cappuccino', maxQty: 20 },
+  { _id: 'Americanos', maxQty: 22 },
+  { _id: 'Lattes', maxQty: 30 },
+  { _id: 'Mochas', maxQty: 11 }
+]
+
+
+
+coffeeshop> db.sales.aggregate([
+...   {
+...     $group: {
+...       _id: null,
+...       maxQty: { $max: '$quantity' },
+...     },
+...   },
+...   {
+...     $project: {
+...       _id: 0,
+...     },
+...   },
+... ]);
+...
+[ { maxQty: 30 } ]
+
+
+
+coffeeshop> db.sales.aggregate([{$group:{"_id":"$item","minAmt":{$min:{$multiply:["$price","$quantity"]}}}},{$sort:{"minamt":-1}}])
+[
+  { _id: 'Americanos', minAmt: 110 },
+  { _id: 'Cappuccino', minAmt: 72 },
+  { _id: 'Mochas', minAmt: 275 },
+  { _id: 'Lattes', minAmt: 375 }
+]
+

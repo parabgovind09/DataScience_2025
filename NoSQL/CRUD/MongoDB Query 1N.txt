@@ -1,0 +1,102 @@
+sales> db.sales.insertMany([
+...   { "_id": 1, "item": "A", "price": 100, "discount": 20 },
+...   { "_id": 2, "item": "B", "price": 200, "discount": 30 },
+...   { "_id": 3, "item": "C", "price": 150, "discount": 0 },
+...   { "_id": 4, "item": "D", "price": -50, "discount": 10 }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4 } }
+
+
+sales> db.sales.aggregate([{$project:{"item":1,"totalWithTax":{$add:["$price",10]}}}])
+[
+  { _id: 1, item: 'A', totalWithTax: 110 },
+  { _id: 2, item: 'B', totalWithTax: 210 },
+  { _id: 3, item: 'C', totalWithTax: 160 },
+  { _id: 4, item: 'D', totalWithTax: -40 }
+]
+
+
+sales> db.sales.aggregate([{$project:{"item":1,"finalPrice":{$subtract:["$price","$discount"]}}}])
+[
+  { _id: 1, item: 'A', finalPrice: 80 },
+  { _id: 2, item: 'B', finalPrice: 170 },
+  { _id: 3, item: 'C', finalPrice: 150 },
+  { _id: 4, item: 'D', finalPrice: -60 }
+]
+
+
+
+sales> db.sales.aggregate([
+...   {
+...     $project: {
+...       item: 1,
+...       taxAmount: { $multiply: ["$price", 0.1] }  // 10% tax
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, item: 'A', taxAmount: 10 },
+  { _id: 2, item: 'B', taxAmount: 20 },
+  { _id: 3, item: 'C', taxAmount: 15 },
+  { _id: 4, item: 'D', taxAmount: -5 }
+]
+
+
+
+
+sales> db.sales.aggregate([
+...   {
+...     $project: {
+...       item: 1,
+...       pricePerUnit: { $divide: ["$price", 5] }  // Suppose each item sold in 5 units
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, item: 'A', pricePerUnit: 20 },
+  { _id: 2, item: 'B', pricePerUnit: 40 },
+  { _id: 3, item: 'C', pricePerUnit: 30 },
+  { _id: 4, item: 'D', pricePerUnit: -10 }
+]
+
+
+sales> db.sales.aggregate([
+...   {
+...     $project: {
+...       item: 1,
+...       absPrice: { $abs: "$price" }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, item: 'A', absPrice: 100 },
+  { _id: 2, item: 'B', absPrice: 200 },
+  { _id: 3, item: 'C', absPrice: 150 },
+  { _id: 4, item: 'D', absPrice: 50 }
+]
+
+
+
+
+sales> db.sales.aggregate([
+...   {
+...     $project: {
+...       item: 1,
+...       discounted: { $subtract: ["$price", "$discount"] },
+...       flooredDiscounted: {
+...         $floor: { $subtract: ["$price", "$discount"] }
+...       }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, item: 'A', discounted: 80, flooredDiscounted: 80 },
+  { _id: 2, item: 'B', discounted: 170, flooredDiscounted: 170 },
+  { _id: 3, item: 'C', discounted: 150, flooredDiscounted: 150 },
+  { _id: 4, item: 'D', discounted: -60, flooredDiscounted: -60 }
+]

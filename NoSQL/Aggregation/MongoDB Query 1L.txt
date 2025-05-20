@@ -1,0 +1,70 @@
+customers> db.customers.insertMany([
+...   { _id: 1, firstName: "John", lastName: "Doe", email: "john.doe@example.com" },
+...   { _id: 2, firstName: "jane", lastName: "smith", email: "jane.SMITH@example.com" },
+...   { _id: 3, firstName: "Alice", lastName: "Brown", email: "alice.b@example.com" }
+... ]);
+...
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3 } }
+customers> db.customers.aggregate([{$project:{"FullName":{$concat:["$firstName","$lastName"]}}}])
+[
+  { _id: 1, FullName: 'JohnDoe' },
+  { _id: 2, FullName: 'janesmith' },
+  { _id: 3, FullName: 'AliceBrown' }
+]
+
+customers> db.customers.aggregate([
+...   {
+...     $project: {
+...       compareNames: { $strcasecmp: ["$firstName", "$lastName"] }
+...     }
+...   }
+... ])
+...
+[
+  { _id: 1, compareNames: 1 },
+  { _id: 2, compareNames: -1 },
+  { _id: 3, compareNames: -1 }
+]
+
+
+customers> db.customers.aggregate([{$project:{"FullName":{$toUpper:{$concat:["$firstName","$lastName"]}}}}])
+[
+  { _id: 1, FullName: 'JOHNDOE' },
+  { _id: 2, FullName: 'JANESMITH' },
+  { _id: 3, FullName: 'ALICEBROWN' }
+]
+
+
+customers> db.customers.aggregate([{$project:{"FullName":{$toUpper:{$concat:["$firstName","$lastName"]}}}}])
+[
+  { _id: 1, FullName: 'JOHNDOE' },
+  { _id: 2, FullName: 'JANESMITH' },
+  { _id: 3, FullName: 'ALICEBROWN' }
+]
+
+
+
+
+customers> db.customers.aggregate([{$project:{"FullName":{$toLower:{$concat:["$firstName","$lastName"]}}}}])
+[
+  { _id: 1, FullName: 'johndoe' },
+  { _id: 2, FullName: 'janesmith' },
+  { _id: 3, FullName: 'alicebrown' }
+
+
+
+customers> db.customers.aggregate([
+...   {
+...     $project: {
+...       emailPrefix: { $substrCP: ["$email", 0, 5] }
+...     }
+...   }
+... ])
+...
+[
+  { _id: 1, emailPrefix: 'john.' },
+  { _id: 2, emailPrefix: 'jane.' },
+  { _id: 3, emailPrefix: 'alice' }
+]
+
+

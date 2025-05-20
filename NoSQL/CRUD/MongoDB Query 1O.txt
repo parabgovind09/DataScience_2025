@@ -1,0 +1,220 @@
+users> db.users.insertMany([
+...   { _id: 1, name: "Alice", age: 25, city: "New York" },
+...   { _id: 2, name: "Bob", age: 30, city: "London" }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2 } }
+users> db.users.replaceOne(
+...   { name: "Bob" },
+...   { name: "Robert", age: 35, country: "UK" }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+users> db.users.replaceOne(
+...   { name: "Charlie" },
+...   { name: "Charlie", age: 28, city: "Toronto" },
+...   { upsert: true }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: ObjectId('68273a24cb21d8398b6d81a9'),
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+users> db.users.find()
+[
+  { _id: 1, name: 'Alice', age: 25, city: 'New York' },
+  { _id: 2, name: 'Robert', age: 35, country: 'UK' },
+  {
+    _id: ObjectId('68273a24cb21d8398b6d81a9'),
+    name: 'Charlie',
+    age: 28,
+    city: 'Toronto'
+  }
+]
+
+
+
+users> db.students.insertMany([
+...   { "_id": 1, "name": "Alice", "scores": [85, 90, 78] },
+...   { "_id": 2, "name": "Bob", "scores": [88, 92] },
+...   { "_id": 3, "name": "Charlie", "scores": [] },
+...   { "_id": 4, "name": "David", "scores": null }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4 } }
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       isScoresArray: { $isArray: "$scores" }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, name: 'Alice', isScoresArray: true },
+  { _id: 2, name: 'Bob', isScoresArray: true },
+  { _id: 3, name: 'Charlie', isScoresArray: true },
+  { _id: 4, name: 'David', isScoresArray: false }
+]
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       scoreCount: { $size: "$scores" }
+...     }
+...   }
+... ]);
+...
+MongoServerError[Location17124]: PlanExecutor error during aggregation :: caused by :: The argument to $size must be an array, but was of type: null
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       scoreCount: {
+...         $cond: {
+...           if: { $isArray: "$scores" },
+...           then: { $size: "$scores" },
+...           else: 0
+...         }
+...       }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, name: 'Alice', scoreCount: 3 },
+  { _id: 2, name: 'Bob', scoreCount: 2 },
+  { _id: 3, name: 'Charlie', scoreCount: 0 },
+  { _id: 4, name: 'David', scoreCount: 0 }
+]
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       secondScore: { $arrayElemAt: ["$scores", 1] }  // Index starts at 0
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, name: 'Alice', secondScore: 90 },
+  { _id: 2, name: 'Bob', secondScore: 92 },
+  { _id: 3, name: 'Charlie' },
+  { _id: 4, name: 'David', secondScore: null }
+]
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       updatedScores: { $concatArrays: ["$scores", [100]] }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, name: 'Alice', updatedScores: [ 85, 90, 78, 100 ] },
+  { _id: 2, name: 'Bob', updatedScores: [ 88, 92, 100 ] },
+  { _id: 3, name: 'Charlie', updatedScores: [ 100 ] },
+  { _id: 4, name: 'David', updatedScores: null }
+]
+users> db.students.aggregate([
+...   {
+...     $project: {
+...       name: 1,
+...       reversedScores: { $reverseArray: "$scores" }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 1, name: 'Alice', reversedScores: [ 78, 90, 85 ] },
+  { _id: 2, name: 'Bob', reversedScores: [ 92, 88 ] },
+  { _id: 3, name: 'Charlie', reversedScores: [] },
+  { _id: 4, name: 'David', reversedScores: null }
+]
+
+
+
+users> db.students.updateOne(
+...   { name: "Bob" },
+...   { $pull: { scores: 88 } }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+users> db.students.updateOne(
+...   { name: "Alice" },
+...   { $pop: { scores: -1 } }  // Remove first
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+users> db.students.updateOne(
+...   { name: "Bob" },
+...   { $pullAll: { scores: [70, 92] } }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+users> db.students.updateOne(
+...   { name: "Charlie" },
+...   { $push: { scores: 95 } }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+users> db.students.updateOne(
+...   { name: "Bob", scores: 88 },
+...   { $set: { "scores.$": 89 } }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+users> db.students.updateOne(
+...   { name: "Bob" },
+...   { $inc: { "scores.$[]": 1 } }
+... );
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+users>

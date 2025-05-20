@@ -1,0 +1,121 @@
+users> db.orders.insertMany([
+...   { _id: 1, item: "pen", quantity: 10, price: 2, customerId: 101 },
+...   { _id: 2, item: "notebook", quantity: 5, price: 5, customerId: 102 },
+...   { _id: 3, item: "pen", quantity: 3, price: 2, customerId: 101 },
+...   { _id: 4, item: "eraser", quantity: 2, price: 1, customerId: 103 }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 1, '1': 2, '2': 3, '3': 4 } }
+users> db.orders.aggregate([
+...   {
+...     $group: {
+...       _id: "$item",
+...       totalQuantity: { $sum: "$quantity" },
+...       totalRevenue: { $sum: { $multiply: ["$quantity", "$price"] } }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 'eraser', totalQuantity: 2, totalRevenue: 2 },
+  { _id: 'pen', totalQuantity: 13, totalRevenue: 26 },
+  { _id: 'notebook', totalQuantity: 5, totalRevenue: 25 }
+]
+users> db.orders.aggregate([
+...   { $count: "totalOrders" }
+... ]);
+...
+[ { totalOrders: 4 } ]
+users> db.orders.aggregate([
+...   {
+...     $group: {
+...       _id: "$item",
+...       totalSold: { $sum: "$quantity" }
+...     }
+...   },
+...   { $out: "item_sales_summary" }  // Creates or replaces this collection
+... ]);
+...
+
+users> db.orders.find()
+[
+  { _id: 1, item: 'pen', quantity: 10, price: 2, customerId: 101 },
+  { _id: 2, item: 'notebook', quantity: 5, price: 5, customerId: 102 },
+  { _id: 3, item: 'pen', quantity: 3, price: 2, customerId: 101 },
+  { _id: 4, item: 'eraser', quantity: 2, price: 1, customerId: 103 }
+]
+users> db.item_sales_summary.find();
+[
+  { _id: 'pen', totalSold: 13 },
+  { _id: 'notebook', totalSold: 5 },
+  { _id: 'eraser', totalSold: 2 }
+]
+users> db.customers.insertMany([
+...   { _id: 101, name: "Alice" },
+...   { _id: 102, name: "Bob" },
+...   { _id: 103, name: "Charlie" }
+... ]
+... )
+{ acknowledged: true, insertedIds: { '0': 101, '1': 102, '2': 103 } }
+users> db.orders.aggregate([
+...   {
+...     $lookup: {
+...       from: "customers",
+...       localField: "customerId",
+...       foreignField: "_id",
+...       as: "customerInfo"
+...     }
+...   }
+... ]);
+...
+[
+  {
+    _id: 1,
+    item: 'pen',
+    quantity: 10,
+    price: 2,
+    customerId: 101,
+    customerInfo: [ { _id: 101, name: 'Alice' } ]
+  },
+  {
+    _id: 2,
+    item: 'notebook',
+    quantity: 5,
+    price: 5,
+    customerId: 102,
+    customerInfo: [ { _id: 102, name: 'Bob' } ]
+  },
+  {
+    _id: 3,
+    item: 'pen',
+    quantity: 3,
+    price: 2,
+    customerId: 101,
+    customerInfo: [ { _id: 101, name: 'Alice' } ]
+  },
+  {
+    _id: 4,
+    item: 'eraser',
+    quantity: 2,
+    price: 1,
+    customerId: 103,
+    customerInfo: [ { _id: 103, name: 'Charlie' } ]
+  }
+]
+users> db.orders.aggregate([
+...   { $sort: { quantity: -1 } },
+...   {
+...     $group: {
+...       _id: "$item",
+...       firstCustomer: { $first: "$customerId" },
+...       firstQuantity: { $first: "$quantity" }
+...     }
+...   }
+... ]);
+...
+[
+  { _id: 'eraser', firstCustomer: 103, firstQuantity: 2 },
+  { _id: 'pen', firstCustomer: 101, firstQuantity: 10 },
+  { _id: 'notebook', firstCustomer: 102, firstQuantity: 5 }
+]
+users>
