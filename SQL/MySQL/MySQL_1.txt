@@ -1,0 +1,1615 @@
+create database if not exists Practice;
+use Practice;
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    department VARCHAR(50),
+    salary DECIMAL(10,2),
+    hire_date DATE,
+    status VARCHAR(20)
+);
+
+INSERT INTO employees VALUES
+(101, 'Alice', 'Smith', 'HR', 5000.00, '2020-01-15', 'Full-time'),
+(102, 'Bob', 'Johnson', 'IT', 7000.00, '2019-03-23', 'Full-time'),
+(103, 'Charlie', 'Lee', 'Finance', 6000.00, '2021-06-01', 'Part-time'),
+(104, 'Diana', 'Clark', 'IT', 7200.00, '2018-11-30', 'Full-time'),
+(105, 'Eva', 'Davis', 'HR', 4800.00, '2022-07-19', 'Intern'),
+(106, 'Frank', 'Miller', 'Finance', 6300.00, '2021-10-10', 'Full-time'),
+(107, 'Grace', 'Wilson', 'Marketing', 5500.00, '2020-08-05', 'Full-time'),
+(108, 'Harry', 'Moore', 'Marketing', 4000.00, '2023-02-12', 'Intern'),
+(109, 'Ivy', 'Taylor', 'IT', 7100.00, '2019-05-25', 'Part-time'),
+(110, 'Jack', 'Anderson', 'Finance', 5800.00, '2020-09-17', 'Full-time');
+
+-- 👉 Get all columns from the table
+select * from employees;
+
+-- 👉 Get specific columns
+select first_name, last_name from employees order by emp_id;
+
+-- 👉 Filter by department IT
+select concat(first_name," ",last_name) as 'Full Name', department from employees where department = "IT";
+
+-- 👉 Filter by salary greater than 6000
+select * from employees where salary > 6000;
+
+-- 👉 Filter by multiple conditions using AND/OR
+select * from employees where department in ('IT','Finance') or salary > 5000;
+select * from employees where status="Full-time" and year(hire_date) > 2020;
+
+-- 👉 Sort by hire_date descending
+select * from employees order by hire_date desc;
+
+-- 👉 Get unique departments
+select distinct(department) from employees;
+
+-- 👉 Rename columns in output
+select first_name as 'First Name', salary as 'Monthly Salary' from employees;
+
+-- sort using expression
+select first_name, last_name, round(salary*1.5,2) as 'Increment', department from employees order by Increment;
+
+-- sort using field
+select * from employees order by field(status,"Intern","Part-time","Full-time"), emp_id;
+
+-- between salary and date
+select * from employees where salary between 5000 and 7000 and hire_date between '2010-01-01' and '2020-12-31';
+
+-- like
+select * from employees where last_name like '%son';
+select * from employees where first_name like '_v_';
+select * from employees where last_name like 'm%';
+
+-- 👉 Average salary by department
+select department, avg(salary) from employees group by department;
+
+-- 👉 Count employees per department
+select department, count(emp_id) from employees group by department;
+
+-- 👉 Show departments with average salary greater than 6000
+select department, avg(salary) from employees group by department having avg(salary) > 6000; 
+
+-- 👉 Return top 3 highest paid employees
+select emp_id, first_name, last_name, department, salary from employees order by salary desc limit 3; 
+
+-- concat_ws
+select concat_ws(', ',first_name,last_name) as 'Name' from employees order by Name;
+
+-- 🔸 1. Get employees with the highest salary(max)
+select * from employees where salary = (select max(salary) from employees);
+
+-- 🔸 2. Get all employees who earn more than the average salary(avg)
+select * from employees where salary > (select avg(salary) from employees);
+
+CREATE TABLE departments (
+    dname VARCHAR(50) PRIMARY KEY,
+    loc VARCHAR(50)
+);
+
+INSERT INTO departments VALUES
+('HR', 'New York'),
+('IT', 'San Francisco'),
+('Finance', 'Chicago'),
+('Marketing', 'Boston');
+
+select * from departments;
+
+-- 🔸 1. INNER JOIN: Get employee names and their department locations
+select concat(e.first_name," ",e.last_name) as "Full Name", e.department, d.loc from employees e inner join departments d on e.department = d.dname;
+
+-- 🔸 2. LEFT JOIN: Get all employees and department locations (even if not matched)
+select e.*, d.* from employees e left join departments d on e.department = d.dname;
+
+-- create database if not exists students;
+-- use students;
+-- create table if not exists student(name varchar(50));
+-- insert into student values ("Govind"),("Minal"),("Sanchit"),("SanChit");
+-- select * from student where name like binary('%nCh%')
+-- union all
+-- select * from student where name like '%nch%';
+-- select database();
+-- show databases;
+-- select now();
+-- select current_timestamp();
+
+-- delimiter $$
+-- create procedure getStudents()
+-- begin
+-- select name, roll_number, grade from students;
+-- end $$
+-- delimiter ;
+
+-- call getStudents();
+-- drop procedure if exists getStudents;
+
+-- DELIMITER $$
+-- CREATE PROCEDURE CreatePersonTable()
+-- BEGIN
+--     -- drop persons table 
+--     DROP TABLE IF EXISTS persons;
+--     
+--     -- create persons table
+--     CREATE TABLE persons(
+--         id INT AUTO_INCREMENT PRIMARY KEY,
+--         first_name VARCHAR(255) NOT NULL,
+--         last_name VARCHAR(255) NOT NULL
+--     );
+--     
+--     -- insert data into the persons table
+--     INSERT INTO persons(first_name, last_name)
+--     VALUES('John','Doe'),
+-- 		  ('Jane','Doe');
+-- 	
+--     -- retrieve data from the persons table
+--     SELECT id, first_name, last_name 
+--     FROM persons;
+-- END $$
+-- DELIMITER ;
+-- use practice;
+-- drop procedure getEmployees;
+-- delimiter $$
+-- create procedure if not exists getEmployees()
+-- begin
+-- declare count int default 0;
+-- select * from employees;
+-- select count(*) into count from employees;
+-- select count;
+-- end $$
+-- delimiter ;
+-- call getEmployees();
+
+-- drop procedure getEmployees;
+-- set @count = 0;
+-- delimiter $$
+-- create procedure if not exists getEmployees()
+-- begin
+-- select * from employees;
+-- select count(*) into @count from employees;
+-- end $$
+-- delimiter ;
+-- call getEmployees();
+-- select @count;
+
+-- drop procedure getEmpByID;
+-- delimiter $$
+-- create procedure getEmpByID(in p_id int)
+-- begin
+-- set @pid = @pid+1;
+-- select * from employees where emp_id = (@pid);
+-- select p_id;
+-- end $$
+-- delimiter ;
+-- set @pid = 105;
+-- call getEmpByID(@pid);
+-- select @pid
+-- select * from employees;
+-- select * from employees, departments where employees.department = departments.dname order by field(employees.department,"HR","IT","Finance","Marketing"), emp_id;
+
+-- drop procedure getEmpNameByID;
+-- delimiter $$
+-- create procedure getEmpNameByID(in pid int, out name varchar(20))
+-- begin
+-- select concat(first_name,' ',last_name) into name from employees where emp_id = pid; 
+-- end $$
+-- delimiter ;
+
+-- set @name = '';
+-- call getEmpNameByID(105,@name);
+-- select @name;
+
+-- drop procedure squareNum;
+-- delimiter $$
+-- create procedure squareNum(inout a int)
+-- begin
+-- set a = a * 2;
+-- select a;
+-- end $$
+-- delimiter ;
+
+-- set @num = 10;
+-- call squareNum(@num);
+-- select @num;
+
+-- DELIMITER $$
+-- CREATE PROCEDURE GetEmployeeCount(OUT total INT)
+-- BEGIN
+--     SELECT COUNT(*) INTO total FROM employees;
+-- END $$
+-- DELIMITER ;
+-- CALL GetEmployeeCount(@count);
+-- SELECT @count;
+
+-- show procedure status;
+-- show procedure status where db = "practice";
+-- show procedure status like "%name%";
+
+-- drop procedure getStatus;
+-- delimiter $$
+-- create procedure getStatus(in pid int, out status varchar(10))
+-- begin
+-- declare sal int;
+-- select salary into sal from employees where emp_id = pid;
+-- if sal > 5000 then
+-- 	set status = "high";
+-- elseif sal > 4000 and sal < 5000 then 
+-- 	set status = "medium";
+-- else 
+-- 	set status = "low";
+-- end if;
+-- end $$
+-- delimiter ;
+
+-- call getStatus(101,@status);
+-- select @status;
+
+-- drop procedure getDept;
+-- delimiter $$
+-- create procedure getDept(in pid int)
+-- begin
+-- declare dname varchar(30);
+-- declare leid int;
+-- select max(emp_id) into leid from employees;
+-- addRecord: loop
+-- set pid = @count;
+-- select department into dname from employees where emp_id = pid;
+-- case dname
+-- 	when "HR" then 
+-- 		update departments set loc = "New York" where departments.dname = dname;
+-- 	when "Marketing" then
+-- 		update departments set loc = "Mumbai" where departments.dname = dname;
+-- 	when "IT" then 
+-- 		update departments set loc = "Boston" where departments.dname = dname;
+-- 	when "Finance" then
+-- 		update departments set loc = "Chicago" where departments.dname = dname;
+-- 	else
+-- 		begin
+--         end;
+-- end case;
+-- if @count = leid then
+-- 	leave addRecord;
+-- else
+-- 	set @count = @count + 1;
+-- end if;
+-- end loop;
+-- end $$
+-- delimiter ;
+
+-- SET SQL_SAFE_UPDATES = 0;
+-- set @count = 100;
+-- call getDept(@count);
+
+-- DELIMITER $$
+-- CREATE PROCEDURE printNumbers()
+-- BEGIN
+--     DECLARE num INT DEFAULT 1;
+
+--     WHILE num <= 5 DO
+--         SELECT CONCAT('Number: ', num);
+--         SET num = num + 1;
+--     END WHILE;
+-- END $$
+-- DELIMITER ;
+-- CALL printNumbers();
+
+-- use practice;
+-- DELIMITER $$
+-- CREATE PROCEDURE repeatExample()
+-- BEGIN
+--     DECLARE num INT DEFAULT 1;
+
+--     REPEAT
+--         SELECT CONCAT('Number: ', num);
+--         SET num = num + 1;
+--     UNTIL num > 5
+--     END REPEAT;
+-- END $$
+-- DELIMITER ;
+
+-- call repeatExample();
+
+-- drop table hello;
+-- show warnings;
+-- show count(*) warnings;
+-- show warnings limit 2;
+-- SHOW VARIABLES LIKE 'max_error_count';
+
+-- show errors;-- similar to warnings but only show errors and not warnings and notes
+-- show count(*) errors;
+-- show errors limit 1;
+
+-- IF p_salary < 0 THEN
+--   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Salary cannot be negative';
+-- END IF;
+
+-- DECLARE EXIT HANDLER FOR SQLEXCEPTION
+-- BEGIN
+--   RESIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Custom error caught and re-thrown';
+-- END;
+
+
+-- DECLARE { EXIT | CONTINUE } HANDLER
+--     FOR condition_value [, condition_value] ...
+--     statement
+
+-- DECLARE condition_name CONDITION FOR condition_value
+-- Where:
+-- condition_name: A custom name for the condition you're declaring.
+
+-- condition_value: One of the following:
+
+-- A specific MySQL error code (e.g. 1062 for duplicate entry)
+
+-- A SQLSTATE value (standardized 5-character error code)
+
+
+-- DELIMITER //
+
+-- CREATE PROCEDURE insert_user(
+--   IN p_username VARCHAR(50),
+--   IN p_email VARCHAR(50)
+-- )
+-- BEGIN
+--   DECLARE dup_entry CONDITION FOR SQLSTATE '23000';
+
+--   DECLARE CONTINUE HANDLER FOR dup_entry
+--   BEGIN
+--     SELECT 'Duplicate entry. User not inserted.' AS message;
+--   END;
+
+--   INSERT INTO users(username, email)
+--   VALUES (p_username, p_email);
+
+--   SELECT 'Insert attempted' AS status;
+-- END //
+
+-- DELIMITER ;
+
+use practice;
+-- drop procedure getEmp;
+-- DELIMITER $$
+-- CREATE PROCEDURE getEmp()
+-- BEGIN
+--   DECLARE flag BOOLEAN DEFAULT FALSE;
+--   DECLARE var VARCHAR(100);
+--   DECLARE nameList TEXT DEFAULT '';
+--   -- Cursor to get full names
+--   DECLARE cname CURSOR FOR 
+--     SELECT CONCAT(first_name, ' ', last_name) FROM employees;
+--   DECLARE CONTINUE HANDLER FOR NOT FOUND SET flag = TRUE;
+--   OPEN cname;
+--   nameLoop: LOOP
+--     FETCH cname INTO var;
+--     IF flag THEN
+--       LEAVE nameLoop;
+--     END IF;
+--     SET nameList = CONCAT(nameList, var, ', ');
+--   END LOOP nameLoop;
+--   CLOSE cname;
+--   SELECT nameList AS EmployeeNames;
+-- END $$
+-- DELIMITER ;
+
+-- call getEmp();
+
+
+-- use school;
+-- select * from students;
+
+-- prepare insert_student from 'insert into students(roll_number,name,grade) values (?,?,?)';
+-- set @roll = 10;
+-- set @name = "Ankita";
+-- set @grade = "A";
+-- execute insert_student using @roll,@name,@grade;
+-- drop prepare insert_student;
+
+-- CREATE DEFINER='admin'@'localhost'
+-- SQL SECURITY DEFINER
+-- PROCEDURE viewSalaries()
+-- BEGIN
+--   SELECT * FROM employees;
+-- END;
+-- Even if the user calling viewSalaries() doesn't have SELECT on employees, it will still work if admin does.
+
+-- delimiter $$
+-- CREATE DEFINER=root@localhost 
+-- PROCEDURE viewSalaries()
+-- SQL SECURITY INVOKER
+-- BEGIN
+--   SELECT * FROM employees;
+-- END $$
+-- delimiter ;
+-- Now, only users with their own SELECT rights on employees can run this successfully.
+
+
+-- use practice;
+-- delimiter $$
+-- create function empDetails(pid int) returns varchar(50) deterministic 
+-- begin
+-- declare name varchar(50);
+-- select concat(first_name," ",last_name) into name from employees where emp_id = pid;
+-- return(name);
+-- end $$
+-- delimiter ;
+
+-- select emp_id, empDetails(emp_id) as FullName from employees;
+
+
+-- delimiter $$
+-- create function getRandom() returns int deterministic
+-- begin
+-- return (round((rand()*10),0));
+-- end $$
+-- delimiter ;
+-- select getRandom();
+
+-- drop function if exists getRandom;
+-- show function status where db = "practice";
+
+-- CREATE TABLE accounts (
+--     account_id INT AUTO_INCREMENT  PRIMARY KEY ,
+--     account_holder VARCHAR(255) NOT NULL,
+--     balance DECIMAL(10, 2) NOT NULL
+-- );
+
+-- CREATE TABLE transactions (
+--     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+--     account_id INT NOT NULL,
+--     amount DECIMAL(10, 2) NOT NULL,
+--     transaction_type ENUM('DEPOSIT', 'WITHDRAWAL') NOT NULL,
+--     FOREIGN KEY (account_id) REFERENCES accounts(account_id)
+-- );
+
+-- INSERT INTO accounts (account_holder, balance) 
+-- VALUES ('John Doe', 1000.00), ('Jane Doe', 500.00);
+
+-- DELIMITER //
+
+-- CREATE PROCEDURE transfer(
+--     IN sender_id INT,
+--     IN receiver_id INT,
+--     IN amount DECIMAL(10,2)
+-- )
+-- BEGIN
+--     DECLARE rollback_message VARCHAR(255) DEFAULT 'Transaction rolled back: Insufficient funds';
+--     DECLARE commit_message VARCHAR(255) DEFAULT 'Transaction committed successfully';
+
+--     -- Start the transaction
+--     START TRANSACTION;
+
+--     -- Attempt to debit money from account 1
+--     UPDATE accounts SET balance = balance - amount WHERE account_id = sender_id;
+
+--     -- Attempt to credit money to account 2
+--     UPDATE accounts SET balance = balance + amount WHERE account_id = receiver_id;
+
+--     -- Check if there are sufficient funds in account 1
+--     -- Simulate a condition where there are insufficient funds
+--     IF (SELECT balance FROM accounts WHERE account_id = sender_id) < 0 THEN
+--         -- Roll back the transaction if there are insufficient funds
+--         ROLLBACK;
+--         SIGNAL SQLSTATE '45000'
+--             SET MESSAGE_TEXT = rollback_message;
+--     ELSE
+--         -- Log the transactions if there are sufficient funds
+--         INSERT INTO transactions (account_id, amount, transaction_type) VALUES (sender_id, -amount, 'WITHDRAWAL');
+--         INSERT INTO transactions (account_id, amount, transaction_type) VALUES (receiver_id, amount, 'DEPOSIT');
+--         
+--         -- Commit the transaction
+--         COMMIT;
+--         SELECT commit_message AS 'Result';
+--     END IF;
+-- END //
+
+-- DELIMITER ;
+
+-- CALL transfer(1,2,1000);
+
+-- select * from accounts;
+-- select * from transactions;
+
+-- use practice;
+-- select * from employees;
+-- drop table if exists leftEmp;
+-- create table leftEmp(id int,name varchar(50),dept varchar(20),sal int, hire_date date, left_date date);
+-- delimiter $$
+-- create trigger insertLeftEmp 
+-- after delete 
+-- on employees 
+-- for each row 
+-- begin
+-- insert into leftEmp values (old.emp_id,concat(old.first_name,' ',old.last_name),old.department,old.salary,old.hire_date,now());
+-- end $$
+-- delimiter ;
+
+-- show triggers;
+-- delete from employees where emp_id = 110;
+-- select * from leftEmp;
+-- select * from employees;
+-- drop trigger if exists insertLeftEmp;
+-- show triggers;
+
+-- select * from employees;
+-- delimiter $$
+-- create trigger setDept 
+-- before insert 
+-- on employees 
+-- for each row
+-- begin
+-- if new.department is null then
+-- 	set new.department = "General";
+-- end if;
+-- end $$
+-- delimiter ;
+
+-- insert into employees values(111,"Aniket","Sawant",null,5000,Date(now()),"Full-time");
+-- select * from employees;
+-- drop trigger if exists setDept;
+
+-- delimiter $$
+-- create trigger setDept
+-- before insert 
+-- on employees 
+-- for each row
+-- begin
+-- if new.department is null then
+-- set new.department = "General";
+-- end if;
+-- end $$
+-- delimiter ;
+
+-- delimiter $$
+-- create trigger addDept
+-- before insert 
+-- on employees 
+-- for each row
+-- follows setDept
+-- begin
+-- if new.department not in (select dname from departments) then
+-- insert into departments values ("General","Jaipur");
+-- end if;
+-- end $$
+-- delimiter ;
+
+-- insert into employees values(112,"Anamika","Ghag",null,4000,Date(now()),"Part-time");
+-- select * from employees;
+-- select * from departments;
+
+-- create view hr_dept
+-- as
+-- select e.*, d.* from employees e, departments d where e.department = "HR" order by e.emp_id;
+
+-- select emp_id, concat(first_name," ",last_name), loc  from hr_dept;
+
+-- show tables;
+-- show full tables;
+-- show create view hr_dept;
+
+-- rename table hr_dept to hr_department;
+-- select * from hr_department;
+-- drop view if exists hr_department;
+
+-- CREATE DATABASE mydb;
+
+-- USE mydb;
+
+-- CREATE TABLE employees(
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     type VARCHAR(50) NOT NULL,
+--     name VARCHAR(255) NOT NULL
+-- );
+
+-- INSERT INTO employees (type, name) 
+-- VALUES
+-- ('Full-time', 'John Doe'),
+-- ('Contractor', 'Jane Smith'),
+-- ('Temp', 'Alice Johnson'),
+-- ('Full-time', 'Bob Anderson'),
+-- ('Contractor', 'Charlie Brown'),
+-- ('Temp', 'David Lee'),
+-- ('Full-time', 'Eva Martinez'),
+-- ('Contractor', 'Frank White'),
+-- ('Temp', 'Grace Taylor'),
+-- ('Full-time', 'Henry Walker'),
+-- ('Contractor', 'Ivy Davis'),
+-- ('Temp', 'Jack Turner'),
+-- ('Full-time', 'Kelly Harris'),
+-- ('Contractor', 'Leo Wilson'),
+-- ('Temp', 'Mia Rodriguez'),
+-- ('Full-time', 'Nick Carter'),
+-- ('Contractor', 'Olivia Clark'),
+-- ('Temp', 'Pauline Hall'),
+-- ('Full-time', 'Quincy Adams');
+
+-- SELECT * FROM employees;
+
+-- CREATE OR REPLACE VIEW contractors 
+-- AS 
+-- SELECT id, type, name 
+-- FROM 
+--   employees 
+-- WHERE 
+--   type = 'Contractor';
+--   
+-- SELECT * FROM contractors;
+-- INSERT INTO contractors(name, type)
+-- VALUES('Andy Black', 'Contractor');
+
+-- -- problem
+-- INSERT INTO contractors(name, type)
+-- VALUES('Deric Seetoh', 'Full-time');
+
+-- -- to avoid this
+-- CREATE OR REPLACE VIEW contractors 
+-- AS 
+-- SELECT id, type, name 
+-- FROM 
+--   employees 
+-- WHERE 
+--   type = 'Contractor'
+-- WITH CHECK OPTION;
+
+-- will cause error
+-- INSERT INTO contractors(name, type)
+-- VALUES('Brad Knox', 'Full-time');
+
+-- will not cause error
+-- INSERT INTO contractors(name, type)
+-- VALUES('Andy Black', 'Contractor');
+
+-- with check option ensure that any data inserted or updated through the view still satisfies the view’s WHERE condition.
+
+-- ✅ Example: Let's Build This Step by Step
+-- 1. Base Table
+create database newDB;
+use newDB;
+CREATE TABLE employees (
+  emp_id INT PRIMARY KEY,
+  name VARCHAR(50),
+  department VARCHAR(50),
+  status VARCHAR(20)
+);
+-- 2. View A (Only HR)
+
+CREATE VIEW hr_view AS
+SELECT * FROM employees
+WHERE department = 'HR';
+
+-- 3. View B on top of View A (Only Active HR)
+
+CREATE VIEW active_hr_view AS
+SELECT * FROM hr_view
+WHERE status = 'Active'
+WITH LOCAL CHECK OPTION;
+
+-- 🔍 LOCAL CHECK OPTION
+-- Only checks status = 'Active'
+-- Does NOT check that department is still 'HR' from hr_view
+
+INSERT INTO active_hr_view VALUES (101, 'Alice', 'IT', 'Active');
+-- ✅ This succeeds! Even though department ≠ 'HR'
+-- Because it satisfies only the immediate view’s condition (status = 'Active').
+
+-- 🔐 CASCADED CHECK OPTION
+
+CREATE OR REPLACE VIEW active_hr_view AS
+SELECT * FROM hr_view
+WHERE status = 'Active'
+WITH CASCADED CHECK OPTION;
+
+-- Checks status = 'Active' and department = 'HR'
+-- Respects all view conditions in the hierarchy
+INSERT INTO active_hr_view VALUES (101, 'Alice', 'IT', 'Active');
+-- ❌ Fails! Because department ≠ 'HR'
+
+/*
+Awesome! Let's dive into a **Level 3 nested view setup** — we'll create **three views**: `v1`, `v2`, and `v3`, to clearly demonstrate how `WITH LOCAL` and `WITH CASCADED CHECK OPTION` work when deeply nested.
+
+---
+
+### 🏗️ Step-by-Step Setup
+
+#### 🔹 1. Base Table: `employees`
+```sql
+CREATE TABLE employees (
+  emp_id INT PRIMARY KEY,
+  name VARCHAR(50),
+  department VARCHAR(50),
+  status VARCHAR(20),
+  location VARCHAR(50)
+);
+
+-- Sample Data
+INSERT INTO employees VALUES
+(101, 'Alice', 'HR', 'Active', 'NY'),
+(102, 'Bob', 'IT', 'Active', 'LA'),
+(103, 'Eve', 'HR', 'Inactive', 'NY'),
+(104, 'Tom', 'Finance', 'Active', 'Chicago');
+```
+
+---
+
+### 🔹 2. View v1 – All HR Employees
+```sql
+CREATE VIEW v1 AS
+SELECT * FROM employees
+WHERE department = 'HR';
+```
+
+---
+
+### 🔹 3. View v2 – Active HR Employees
+```sql
+CREATE VIEW v2 AS
+SELECT * FROM v1
+WHERE status = 'Active';
+```
+
+---
+
+### 🔹 4. View v3 – NY-based Active HR Employees
+```sql
+-- Change between LOCAL and CASCADED here
+CREATE VIEW v3 AS
+SELECT * FROM v2
+WHERE location = 'NY'
+WITH CASCADED CHECK OPTION;
+```
+
+---
+
+### 🧪 Test Insert
+
+```sql
+INSERT INTO v3 VALUES (999, 'John', 'IT', 'Active', 'NY');
+```
+
+#### 🟡 Behavior with:
+
+| View | Condition            |
+|------|----------------------|
+| v1   | department = 'HR'    |
+| v2   | status = 'Active'    |
+| v3   | location = 'NY'      |
+
+---
+
+### ✅ With `CASCADED CHECK OPTION`
+Fails ❌ — because department is 'IT', not 'HR'.
+
+---
+
+### 🔄 Replace v3 with `LOCAL CHECK OPTION`:
+```sql
+CREATE OR REPLACE VIEW v3 AS
+SELECT * FROM v2
+WHERE location = 'NY'
+WITH LOCAL CHECK OPTION;
+```
+
+Now try:
+
+```sql
+INSERT INTO v3 VALUES (999, 'John', 'IT', 'Active', 'NY');
+```
+
+✅ **It will succeed!** Because only `location = 'NY'` is enforced.
+
+---
+
+### 🧠 Summary:
+
+| Mode                    | Enforces conditions from |
+|-------------------------|---------------------------|
+| `WITH LOCAL CHECK OPTION`    | **Only current view (v3)**        |
+| `WITH CASCADED CHECK OPTION` | **All views (v1 → v2 → v3)**      |
+
+---
+
+Want me to generate queries to show only **violations**, or test with `UPDATE` as well?
+*/
+
+-- When you insert multiple rows and use the LAST_INSERT_ID() function to get the last inserted id of an AUTO_INCREMENT column, you will get the id of the first inserted row, not the id of the last inserted row.
+
+-- use mydb;
+-- insert into employees(id,type,name)
+-- select emp_id,status,concat(first_name,' ',last_name) from practice.employees where department in ("HR","IT");
+
+-- CREATE TABLE stats (
+--     totalSalary INT,
+--     totalEmployee INT,
+--     totaldepartments INT
+-- );
+
+-- insert into stats 
+-- select sum(salary), count(*), count(distinct(department)) from practice.employees;
+
+-- select * from stats;
+
+/*
+INSERT INTO stats(totalProduct, totalCustomer, totalOrder)
+VALUES(
+	(SELECT COUNT(*) FROM products),
+	(SELECT COUNT(*) FROM customers),
+	(SELECT COUNT(*) FROM orders)
+);
+*/
+
+-- CREATE TABLE subscribers (
+--     id INT PRIMARY KEY AUTO_INCREMENT,
+--     email VARCHAR(130) NOT NULL UNIQUE
+-- );
+
+-- INSERT INTO subscribers(email)
+-- VALUES('john.doe@gmail.com'), 
+-- 	  ('john.doe@gmail.com'),
+--       ('jane.smith@ibm.com');
+
+select * from subscribers;
+
+-- INSERT IGNORE INTO subscribers(email)
+-- VALUES('john.doe@gmail.com'), 
+-- 	  ('john.doe@gmail.com'),
+--       ('jane.smith@ibm.com');
+
+
+-- CREATE TABLE contacts (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     first_name VARCHAR(50),
+--     last_name VARCHAR(50),
+--     email VARCHAR(100) UNIQUE,
+--     phone VARCHAR(20)
+-- );
+
+-- INSERT INTO contacts (first_name, last_name, email, phone)
+-- VALUES
+--     ('John', 'Doe', 'john.doe@email.com', '123-456-7890'),
+--     ('Jane', 'Smith', 'jane.smith@email.com', '987-654-3210'),
+--     ('Alice', 'Doe', 'alice.doe@email.com', '555-123-4567'),
+--     ('Bob', 'Johnson', 'bob.johnson@email.com', '789-321-6540'),
+--     ('Eva', 'Doe', 'eva.doe@email.com', '111-222-3333'),
+--     ('Michael', 'Smith', 'michael.smith@email.com', '444-555-6666'),
+--     ('Sophia', 'Johnson', 'sophia.johnson@email.com', '777-888-9999'),
+--     ('Matthew', 'Doe', 'matthew.doe@email.com', '333-222-1111'),
+--     ('Olivia', 'Smith', 'olivia.smith@email.com', '999-888-7777'),
+--     ('Daniel', 'Johnson', 'daniel.johnson@email.com', '666-555-4444'),
+--     ('Emma', 'Doe', 'emma.doe@email.com', '222-333-4444'),
+--     ('William', 'Smith', 'william.smith@email.com', '888-999-0000'),
+--     ('Ava', 'Johnson', 'ava.johnson@email.com', '111-000-9999'),
+--     ('Liam', 'Doe', 'liam.doe@email.com', '444-777-3333'),
+--     ('Mia', 'Smith', 'mia.smith@email.com', '222-444-8888'),
+--     ('James', 'Johnson', 'james.johnson@email.com', '555-666-1111'),
+--     ('Grace', 'Doe', 'grace.doe@email.com', '777-222-8888'),
+--     ('Benjamin', 'Smith', 'benjamin.smith@email.com', '999-111-3333'),
+--     ('Chloe', 'Johnson', 'chloe.johnson@email.com', '111-444-7777'),
+--     ('Logan', 'Doe', 'logan.doe@email.com', '333-555-9999');
+
+-- select * from contacts;
+-- delete from contacts order by first_name limit 10;
+
+-- CREATE TABLE buildings (
+--     building_no INT PRIMARY KEY AUTO_INCREMENT,
+--     building_name VARCHAR(255) NOT NULL,
+--     address VARCHAR(255) NOT NULL
+-- );
+
+-- CREATE TABLE rooms (
+--     room_no INT PRIMARY KEY AUTO_INCREMENT,
+--     room_name VARCHAR(255) NOT NULL,
+--     building_no INT NOT NULL,
+--     foreign key (building_no) references buildings (building_no) on delete cascade
+-- );
+
+-- INSERT INTO buildings(building_name,address)
+-- VALUES('ACME Headquaters','3950 North 1st Street CA 95134'),
+--       ('ACME Sales','5000 North 1st Street CA 95134');
+
+-- INSERT INTO rooms(room_name,building_no)
+-- VALUES('Amazon',1),
+--       ('War Room',1),
+--       ('Office of CEO',1),
+--       ('Marketing',2),
+--       ('Showroom',2);
+
+-- DELETE FROM buildings WHERE building_no = 2;
+
+-- select * from rooms;
+
+-- USE information_schema;
+
+-- SELECT 
+--     table_name
+-- FROM
+--     referential_constraints
+-- WHERE
+--     constraint_schema = 'mydb'
+--         AND referenced_table_name = 'buildings'
+--         AND delete_rule = 'CASCADE';
+
+-- use mydb;
+-- DROP TABLE IF EXISTS t1, t2;
+
+-- CREATE TABLE t1 (
+--     id INT PRIMARY KEY AUTO_INCREMENT
+-- );
+
+-- CREATE TABLE t2 (
+--     id VARCHAR(20) PRIMARY KEY,
+--     ref INT NOT NULL
+-- );
+
+-- INSERT INTO t1 VALUES (1),(2),(3);
+
+-- INSERT INTO t2(id,ref) VALUES('A',1),('B',2),('C',3);
+-- SET SQL_SAFE_UPDATES = 0;
+-- DELETE t1,t2 FROM t1
+--         INNER JOIN
+--     t2 ON t2.ref = t1.id 
+-- WHERE
+--     t1.id = 1;
+-- select * from t1;
+-- select * from t2;
+
+-- delete t1,t2 from t1 inner join t2 on t1.id = t2.ref where t1.id=3;
+
+
+-- ABS()	Returns the absolute value of a number.
+-- select abs(-15); -- 15
+
+-- CEIL()	Returns the smallest integer value greater than or equal to the input number (n).
+-- select ceil(5.0), ceil(5.1),ceil(5.5),ceil(5.7);
+
+-- FLOOR()	Returns the largest integer value not greater than the argument.
+-- select floor(5.0), floor(5.1),floor(5.5),floor(5.7);
+
+-- MOD()	Returns the remainder of a number divided by another.
+-- select mod(5,3), mod(5,1), mod(5,7);
+
+-- Notice that the TRUNCATE() function is similar to the ROUND() function in terms of reducing the number of decimal places. However, the TRUNCATE() function does not perform any rounding as the ROUND() function does.
+
+-- ROUND()	Rounds a number to a specified number of decimal places.
+-- select round(2.5); -- 3
+-- select round(2.3); 2
+-- select round(2.7); -- 3
+-- select round(3.45632587,5); -- 3.45633
+-- select round(3.45632187,5); -- 3.45632
+-- select round(1256.2365,-2); -- 1300
+-- select round(1234.2365,-2); -- 1200
+
+-- TRUNCATE()	Truncates a number to a specified number of decimal places
+-- select truncate(2.5,0); -- 2
+-- select truncate(2.5,1); -- 2.5
+-- select truncate(2.3236,2); -- 2.32
+-- select truncate(2.73622,1); -- 2.7
+-- select truncate(3.45632587,5); -- 3.45632
+-- select truncate(3.45632187,5); -- 3.45632
+-- select truncate(1256.2365,-2); -- 1200
+-- select truncate(1234.2365,-2); -- 1200
+
+-- EXP(n)	Raises to the power of e raised to the power of n.
+-- select exp(1); -- 2.718281828459045
+
+-- The RAND() function returns a random number v with the following value:
+-- 0 <= v < 1.0
+
+-- If you use a constant seed value, the RAND() function will return the same value each time.
+-- For example, executing the following statement that uses the RAND() function with the same seed value will return the same random number:
+-- SELECT RAND(1);
+
+-- In practice, you often want to obtain a random integer R where i <= R < j.
+-- To do that, you can combine the RAND() function with the FLOOR() function as follows:
+-- FLOOR(i + RAND() * (j − i))
+-- Code language: SQL (Structured Query Language) (sql)
+-- For example, the following returns a random number between 1 and 10:
+-- SELECT FLOOR(1 + RAND() * 9);
+-- select truncate(rand()*10,0);
+
+-- POW()	Returns the argument raised to the specified power.
+-- select pow(2,4); -- 16
+
+-- POWER()	Returns the argument raised to the specified power.
+-- select power(5,3); -- 125
+
+-- CONV(n,from_base,to_base)	Converts a number between different number bases
+-- select conv(1001,2,10);
+
+-- SQRT(n)	Returns the square root of n
+-- select sqrt(16), sqrt(15);
+
+-- LOG2()	Returns the base-2 logarithm of the argument
+-- select log2(8); -- 3
+
+-- LOG10()	Returns the base-10 logarithm of the argument
+-- select log10(100); -- 2
+-- select log10(1000); -- 3
+
+-- LOG(n)	Returns the natural logarithm of the first argument
+-- select log(1); -- 0
+-- select log(2.7183); -- 1.0000066849139877
+
+-- SIGN(n)	Returns the sign of n that can be -1, 0, or 1 depending on whether n is negative, zero, or positive.
+-- select sign(15), sign(0), sign(-15);
+
+-- PI()	Returns the value of PI
+-- select pi(); -- 3.141593
+
+-- String Functions
+-- Concatenation Function
+/*
+The CONCAT() function allows you to concatenate multiple strings into a single string.
+
+Here’s the basic syntax of the CONCAT() function:
+
+CONCAT(string1, string2, string3, ...)
+The CONCAT() function accepts a variable number of input strings: string1, string2, string3, …
+It returns a single string that combines the string arguments string1, string2, and string3 …
+If any string is NULL, the CONCAT() function returns NULL.
+In addition, if you pass numbers to the CONCAT() function, it’ll convert these numbers to their equivalent strings before concatenation.
+*/
+-- select concat(1,2,3,4,5,6);
+-- select concat("Govind"," ","Rama"," ","Parab") as 'Full Name';
+-- select concat("Null Values",null);
+-- select concat(firstName," ",lastName ) as 'Name'from employees;
+-- select concat(city," ",state) as 'Location' from customers order by 'Location';
+-- -- with if
+-- select concat(city," ",if(state is null,'',state)) as 'Location' from customers order by 'Location';
+-- -- with ifnull
+-- select concat(city," ",ifnull(state,'')) as 'Location' from customers order by 'Location';
+-- The CONCAT_WS function concatenates multiple strings into a string delimited by a specified space. It skips the NULL values.
+-- select concat_ws(', ',city,state) as 'Location' from customers;
+
+/*
+CONCAT_WS stands for Concatenate With Separator. The CONCAT_WS function concatenates multiple strings into a single string separated by a specified separator.
+Here’s the syntax of the CONCAT_WS function:
+
+CONCAT_WS(separator, string1, string2, string3, ...)
+In this syntax:
+separator: This is a separator that you use to separate the strings.
+string1, string2, string3, ..: The strings that you want to concatenate.
+The CONCAT_WS returns a single string that combines the string1, string2, string3… separated by the separator.
+If the separator is NULL, the CONCAT_WS will return NULL. The CONCAT_WS function does not skip empty strings. But if does skip any NULL strings (string1, string2, string3…).
+In practice, you use the CONCAT_WS function to combine values from different columns with a custom separator.
+*/
+-- select concat_ws(',',"Govind","Sahil","Sanchit");
+-- select concat_ws(null,"Govind","Parab");-- if separator is null then it returns null
+-- select concat_ws(";","Govind",null);-- both empty, non-empty strings will be included and null strings will be skiped
+-- select concat_ws(", ",city,state) as 'Location' from customers;
+
+-- in MySQL sting starts from 1 not 0
+-- SUBSTRING(string, position);
+-- SELECT SUBSTRING('MYSQL SUBSTRING', 7); -- SUBSTRING
+-- SELECT SUBSTRING('MySQL SUBSTRING',-10); --  SUBSTRING
+-- Notice that if the position is zero, the SUBSTRING() function returns an empty string:
+-- SELECT SUBSTRING('MYSQL SUBSTRING', 0); -- ''
+-- SUBSTRING(string, position, length);
+-- SELECT SUBSTRING('MySQL SUBSTRING',1,5); -- MySQL
+-- SELECT SUBSTRING('MySQL SUBSTRING',-15,5); -- MySQL
+-- select substring("Govind",2,40);
+-- select substring("Govind",2,null);
+-- select substring("Govind",null,2);
+-- The MID() function is a synonym for SUBSTRING().
+/*
+SUBSTRING_INDEX(str,delimiter,n)
+
+str is the string from which you want to extract a substring.
+delimiter is a string that acts as a delimiter. 
+The function performs a case-sensitive match when searching for the delimiter.
+n is an integer that specifies the number of occurrences of the delimiter. 
+The n can be negative or positive. 
+If n is positive, the function returns every character from the left of the string up to n number of occurrences of the delimiter. 
+If n is negative, the function returns every character from right up to n number of occurrences of the delimiter.
+*/
+-- SELECT SUBSTRING_INDEX('Hello World', 'l',1);
+-- SELECT SUBSTRING_INDEX('Hello World', 'l',2);
+-- SELECT SUBSTRING_INDEX('Hello World', 'l',3);
+-- SELECT SUBSTRING_INDEX('Hello World', 'l', -1);
+-- SELECT SUBSTRING_INDEX('Hello World', 'l', -2);
+-- SELECT SUBSTRING_INDEX('Hello World', 'l', -3);
+-- select substring_index("Govind Rama Parab"," ",1);
+-- select substring_index("Govind Rama Parab"," ",-1);
+-- select customerName, substring_index(addressLine1," ",1) as 'House Number' from customers;
+
+-- The LEFT function returns the leftmost length characters from the str string. It returns a NULL value if either str or length argument is NULL.
+
+-- If the length is zero or negative, the LEFT function returns an empty string. If the length is greater than the length of the str string, the LEFT function returns the entire str string.
+-- select left("Govind",2);
+-- select left("Govind",null);
+-- select left("Hello Govind",5);
+-- select left("Hello Govind",50);
+-- select left("Going",-2);
+
+-- same for right
+-- select right("Govind",2);
+-- select right("Govind",null);
+-- select right("Hello Govind",5);
+-- select right("Hello Govind",50);
+-- select right("Going",-2);
+
+/*
+The LPAD() function allows you to left-pad a string with a specific set of characters to a specified length.
+
+Here’s the syntax of the LPAD() function:
+
+LPAD(string, length, pad_string)
+In this syntax:
+
+string: The input string that you want to left-pad.
+length: The total length of the resulting string after padding.
+pad_string: The string that you use for padding.
+If any argument is NULL, the LPAD() will return NULL.
+
+In practice, you use the LPAD() function format strings with consistent length, align text in columns or prepare data for display.
+*/
+-- select lpad("Govind",10,"*");
+-- select lpad(125,5,0);
+-- select lpad("Kritika",20," ");
+
+-- similarly rpad()
+-- select rpad("Govind",10,"*");
+-- select rpad(125,5,0);
+-- select rpad("Kritika",20," ");
+-- select rpad(firstName,50,"*") from employees;
+
+-- case conversion
+-- upper(str) or ucase(str)
+-- select upper("Govind");
+-- select ucase("Govind");
+-- select upper(firstName) from employees;
+-- Handling binary string data
+-- The UPPER() function is ineffective when applied to the binary strings such as BINARY, VARBINARY, and BLOB.
+-- Therefore, before passing a binary string to the UPPER() function, you need to convert the string to a nonbinary string
+-- SET @str = BINARY 'Binary String';
+-- select upper(@str); -- won't work
+-- SELECT UPPER(@str), UPPER(CONVERT(@str USING utf8mb4)) uppercase;
+
+-- similar for lower(str) or lcase(str)
+-- select lower("Govind");
+-- select lower(firstName) from employees;
+-- select lcase("Minal");
+-- set @str = Binary "MySQL";
+-- select lower(@str); -- won't work
+-- select lower(convert(@str using utf8mb4));
+-- string manipulation
+/*
+One of the most important tasks in data cleansing is to remove the unwanted leading and trailing characters.
+MySQL provides a very useful string function named TRIM() to help you clean up the data. The following illustrates the syntax of the TRIM() function.
+
+TRIM([{BOTH|LEADING|TRAILING} [removed_str]] FROM str);
+The TRIM function provides a number of options. You can use the LEADING, TRAILING, or BOTH option to explicitly instruct the TRIM() function to remove leading, trailing, or both leading and trailing unwanted characters from a string.
+
+By default, the TRIM() function uses the BOTH option.
+The [removed_str] is the string that you want to remove. If you don’t specify a specific string, the TRIM() function removes spaces only.
+The str is the string that you want to remove the removed_str.
+
+The TRIM() function returns a string that has unwanted characters removed.
+*/
+-- select trim("  Govind  ");
+-- select trim(leading from"  Govind  ");
+-- select ltrim("  Govind  ");
+-- select trim(trailing from "  Govind  ");
+-- select rtrim("  Govind  ");
+-- select trim(leading "*" from"*****Govind  ");
+-- select trim(both "*" from"***Govind***");
+-- select trim(both "\n\r" from "
+-- *
+-- Govind
+-- *
+-- ");
+-- UPDATE products 
+-- SET 
+--     productname = TRIM(productname);
+
+
+-- Use the LTRIM() function to remove all the leading spaces of a string.
+-- select ltrim("     Govind");-- only space for anyother use trim(leading "" from "")
+
+
+-- Use the RTRIM() function to remove all trailing spaces of a string.
+-- select rtrim("Govind      ");-- only space for anyother use trim(trailing "" from "")
+
+
+/*
+the REPEAT() function allows you to repeat a string a specified number of times.
+REPEAT(string,count)
+string. The string that you want to repeat.
+count. The number of times that you want to repeat the string in the resulting string.
+The REPEAT() function returns the string that repeats count times. If the count is less than 1, the function returns an empty string.
+
+Also, if str or count is NULL, the REPEAT() function returns NULL.
+
+The REPEAT() function can be very useful when you want to format the data for display.
+*/
+-- SELECT REPEAT('Go',3);
+
+
+
+/*
+The REVERSE() function accepts a string and returns a new string with the order of characters reversed.
+REVERSE(string)
+string: The input string that you want to reverse.
+The REVERSE() function returns the string with the order of the characters reversed. If the string is NULL, the REVERSE() function returns NULL.
+*/
+-- select reverse("Govind");
+-- set @str = "radar";
+-- set @str2 = "Kite";
+-- select reverse(@str);
+-- select @str, reverse(@str),(@str = reverse(@str));
+-- select @str2, reverse(@str2),(@str2 = reverse(@str2));
+
+
+/*
+MySQL provides you with a useful string function called REPLACE that allows you to replace a string in a column of a table by a new string.
+
+The syntax of the REPLACE function is as follows:
+
+REPLACE(str,old_string,new_string);
+The REPLACE function has three parameters. It replaces the old_string by the new_string in the string
+
+Notice there is a statement also called REPLACE used to insert or update data. You should not confuse the REPLACE statement with the REPLACE string function.
+
+It is very important to note that in the REPLACE function, the first parameter is the column name without quotes (“). If you put the quotes to the field name like “field_name”, the query will update the content of that column to “field_name”, which is causing unexpected data loss.
+
+The REPLACE function does not support regular expression so if you need to replace a text string by a pattern you need to use MySQL user-defined function (UDF) from external library, check it out here MySQL UDF with Regex
+*/
+-- select replace("Govind","Gov","w");
+
+
+
+/*
+The INSERT() function allows you to replace a substring within a string with a new substring.
+
+Here’s the basic syntax of the INSERT() function:
+
+INSERT(str, pos, len, newstr)
+str: The original string where you want to carry the replacement.
+pos: The position in the original string where you want to start the replacement.
+len: The length of the substring to be replaced.
+newstr: The new string that you want to replace the old substring.
+The INSERT() function returns the string str, with the substring starting at position pos and len characters long replaced by the string newstr. 
+
+If the length (len) is greater than the remaining length of the string after the starting position (pos), the INSERT() function will replace the characters from the starting position (pos) to the end of the string with the new substring.
+
+The INSERT() function returns the original string if pos is not within the length of the string.
+
+The INSERT() function also returns NULL if any argument is NULL.
+
+The INSERT() function is multibyte safe. This means that it can correctly handle strings containing multibyte characters, making it suitable for use in various language settings.
+
+Note that the INSERT() function doesn’t modify the original string; Instead, it returns a new string with the specified modifications.
+*/
+
+-- select insert("Govind",3,3,"o");
+-- select insert("Govind",-1,3,"ood");
+-- select insert("Govind",3,50,"MySQL");
+
+-- SELECT concat('Hello',space(5),'World');
+
+/*
+The LOCATE() function returns the position of a substring within a given string. The LOCATE() function has the following syntax:
+
+LOCATE(substring, string, position)
+Code language: SQL (Structured Query Language) (sql)
+In this syntax:
+
+substring: The substring that you want to locate within the main string.
+string: The main string that you want to find the substring.
+position: The position within the main string where you want to start searching for the substring. The position is optional. If you omit it, the search starts from the beginning of the string.
+If the LOCATE() function cannot find the substring in the string starting at the position, it returns 0.
+
+If any argument is NULL, the LOCATE() function returns NULL.
+*/
+-- SELECT LOCATE('MySQL', 'Hello, MySQL') position;
+
+-- SELECT LOCATE('know', "You don't know what you don't know", 12) position;
+
+-- SELECT LOCATE('alien', 'earth');
+
+-- SELECT INSTR('MySQL INSTR', 'MySQL');
+
+-- SELECT INSTR('MySQL INSTR', 'mysql');
+
+-- SELECT INSTR('MySQL INSTR', binary 'mysql');
+-- use mydb;
+-- drop table subscore;
+-- create table subscore(subject varchar(20), sem1 int, sem2 int, sem3 int);
+-- insert into subscore values("Maths",52,59,65),("Science",75,95,90),("History",63,56,86),("Geography",96,90,80);
+-- select subject, greatest(sem1,sem2,sem3), least(sem1,sem2,sem3) from subscore;
+-- always use if null for greatest and least
+
+-- use school;
+-- CREATE TABLE employees (
+--     id INT,
+--     name VARCHAR(50),
+--     salary DECIMAL(10,2),
+--     bonus DECIMAL(10,2)
+-- );
+-- INSERT INTO employees (id, name, salary, bonus) VALUES
+-- (1, 'Alice', 50000, NULL),
+-- (2, 'Bob', NULL, 5000),
+-- (3, 'Charlie', NULL, NULL),
+-- (4, 'Diana', 70000, 10000);
+
+-- select id, name, ifnull(salary,bonus) from employees;
+-- select id,name, coalesce(salary,bonus,0) from employees;
+
+-- select roll_number,name,grade,(
+-- case grade
+-- when 'A' then 90
+-- when 'B' then 80
+-- else 50
+-- end) marks
+-- from students order by marks asc;
+
+
+-- select * from employees order by
+-- (case 
+-- when salary is null then bonus 
+-- else salary  
+-- end) desc;
+
+-- use practice;
+-- select 
+-- sum(
+-- case status
+-- when "Intern" then 1
+-- else 0
+-- end) Intern,
+-- sum(
+-- case status
+-- when "Full-time" then 1
+-- else 0
+-- end) FullTime,
+-- sum(
+-- case status
+-- when "Part-time" then 1
+-- else 0
+-- end) PartTime 
+-- from employees;
+-- use school;
+-- alter table employees add column position varchar(20);
+-- SELECT name, position, salary
+-- FROM employees
+-- WHERE salary > CASE 
+--                   WHEN position = 'Manager' THEN 60000
+--                   WHEN position = 'Intern' THEN 10000
+--                   ELSE 30000
+--                END;
+
+-- SELECT 1/NULLIF(0,0); -- return NULL
+use practice;
+select now();
+select sysdate();
+select current_date();
+select current_time();
+select utc_timestamp();
+select utc_date();
+select utc_time();
+select addtime(now(),'15:30:00');
+select addtime(now(),'-00:10:00');
+select adddate(now(),interval 1 day);
+SELECT 
+  DATE_FORMAT(
+    '2023-10-19 15:30:00', 
+    GET_FORMAT(TIMESTAMP, 'USA')
+  ) AS formatted_timestamp;
+  
+  SELECT 
+  DATE_FORMAT(
+    '2023-10-19', 
+    GET_FORMAT(DATE, 'EUR')
+  ) AS formatted_date;
+  
+  select date_format(current_date(),'%a-%b-%y');
+  
+  -- applying row_number on whole table
+  select *, row_number() over(order by salary) as 'row num' from employees;
+
+-- applying row_number on departments
+select *, row_number() over(partition by department order by salary desc) as 'row num' from employees;
+
+-- finding top two employees of each department
+select * from (select *, row_number() over(partition by department order by department desc) as 'row num' from employees) as topTwo where `row num`< 3;
+
+select *, rank() over() from employees;
+
+select *,row_number() over(order by department, salary desc) as `row num`, rank() over(order by department, salary desc) as `ranked sal` from employees;
+
+select *,row_number() over(partition by department order by department, salary desc) as `row num`, rank() over(partition by department order by department, salary desc) as `ranked sal` from employees;
+
+select * from (select *,row_number() over(partition by department) as `new row count` from (select *,row_number() over(partition by department order by department, salary desc) as `row num`, rank() over(partition by department order by department, salary desc) as `ranked sal` from employees) as second where `ranked sal`=2) as sec_con where `new row count` > 1;
+
+CREATE TABLE sales(
+    sales_employee VARCHAR(50) NOT NULL,
+    fiscal_year INT NOT NULL,
+    sale DECIMAL(14,2) NOT NULL,
+    PRIMARY KEY(sales_employee,fiscal_year)
+);
+
+INSERT INTO sales(sales_employee,fiscal_year,sale)
+VALUES('Bob',2016,100),
+      ('Bob',2017,150),
+      ('Bob',2018,200),
+      ('Alice',2016,150),
+      ('Alice',2017,100),
+      ('Alice',2018,200),
+       ('John',2016,200),
+      ('John',2017,150),
+      ('John',2018,250);
+
+SELECT * FROM sales;
+
+select *,rank() over(partition by fiscal_year order by sale desc),dense_rank() over(partition by fiscal_year order by sale desc) from sales;
+
+select * from (select *,rank() over(partition by fiscal_year order by sale desc) as `rank`,dense_rank() over(partition by fiscal_year order by sale desc) as `dense rank` from sales) as `top 2` where `rank` < 3 or `dense rank` < 3;
+
+select *,ntile(5) over(order by emp_id,department) from employees;
+
+select *,lag(sale,1,0) over(partition by sales_employee order by fiscal_year) as previous_year_sale from sales;
+
+select *,lead(sale,1,0) over(partition by sales_employee order by fiscal_year) as next_month_sale from sales;
+
+select *,first_value(sales_employee) over(partition by fiscal_year order by sale range between unbounded preceding and unbounded following) from sales;
+
+select *,last_value(sales_employee) over(partition by fiscal_year order by sale range between unbounded preceding and unbounded following) from sales;
+
+select *, nth_value(concat(first_name,' ',last_name),3) over(partition by department order by salary desc range between unbounded preceding and unbounded following) from employees;
+
+select *, percent_rank() over(partition by department order by salary) from employees;
+
+select *, round(cume_dist() over(order by salary desc) *100,2) from employees;
+
+SELECT 'MySQL 8' REGEXP '\\d+';
+
+SELECT 'MySQL' REGEXP '\\d+';
+
+SELECT REGEXP_INSTR('MySQL 8.0 Release', '\\d+') position;
+
+SELECT REGEXP_SUBSTR('MySQL 8.0 Release', '\\d+') version;
+
+SELECT REGEXP_REPLACE('MySQL 8 Release', '\\d+', 9);
+
+create database jp;
+use jp;
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50)
+);
+CREATE TABLE employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    dept_id INT,
+    salary DECIMAL(10,2),
+    join_date DATE,
+    FOREIGN KEY (dept_id) REFERENCES departments(dept_id)
+);
+INSERT INTO departments (dept_id, dept_name) VALUES
+(1, 'HR'),
+(2, 'Finance'),
+(3, 'IT'),
+(4, 'Marketing');
+INSERT INTO employees (emp_id, emp_name, dept_id, salary, join_date) VALUES
+(101, 'Alice', 1, 50000, '2020-01-15'),
+(102, 'Bob', 2, 60000, '2019-03-23'),
+(103, 'Charlie', 3, 55000, '2021-07-01'),
+(104, 'David', 3, 80000, '2018-11-12'),
+(105, 'Eva', 2, 72000, '2022-02-10'),
+(106, 'Frank', 1, 45000, '2021-05-25'),
+(107, 'Grace', 4, 65000, '2020-09-05');
+
+select * from employees;
+select * from departments;
+
+select e.*, d.* from employees e inner join departments d on e.dept_id = d.dept_id;
+
+select e.*, d.* from employees e inner join departments d on e.dept_id = d.dept_id where d.dept_name in ('IT');
+
+select d.*, e.* from departments d left join employees e on d.dept_id = e.dept_id;
+
+select e.emp_name, d.dept_name, e.salary from employees e inner join departments d on e.dept_id = d.dept_id where salary > 60000;
+
+select d.dept_name, sum(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name;
+
+select d.dept_name, count(e.emp_id), avg(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name;
+
+select d.dept_name, count(e.emp_id) as co, avg(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name having co>1;
+
+select d.dept_name, max(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name having count(emp_id)>1;
+
+select d.dept_name, min(e.join_date) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name;
+
+select d.dept_name, sum(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name having sum(e.salary) > 10000;
+ 
+select d.dept_name, avg(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name order by avg(e.salary) desc limit 1;
+
+select d.dept_name, count(e.emp_id), avg(e.salary) from employees e inner join departments d on e.dept_id = d.dept_id group by d.dept_name having count(e.emp_id)>1;
+
+SELECT e.emp_name, e.salary, d.dept_name
+FROM employees e
+JOIN departments d ON e.dept_id = d.dept_id
+WHERE e.salary = (
+    SELECT MAX(e2.salary)
+    FROM employees e2
+    WHERE e2.dept_id = e.dept_id
+);
+
+CREATE TABLE sales (
+    region VARCHAR(20),
+    product VARCHAR(20),
+    amount INT
+);
+
+INSERT INTO sales VALUES
+('North', 'Pen', 100),
+('North', 'Notebook', 150),
+('South', 'Pen', 200),
+('South', 'Notebook', 250);
+
+SELECT region, product, SUM(amount) AS total_sales FROM sales GROUP BY region, product with rollup;
+
+
+use newdb;
+
+create table test(id int, name varchar(20));
+alter table test add gender varchar(2);
+alter table test modify gender varchar(1);
+alter table test change column gender sex varchar(1);
+describe test;
+rename table test to trail;
+describe trail;
+alter table trail rename to test;
+describe test;
+alter table test drop column sex;
+insert into test values (1,"Govind"),(2,"Minal");
+select * from test;
+alter table test add uid int;
+alter table test modify uid int auto_increment primary key;
+select * from test;
+
+-- DROP [TEMPORARY] TABLE [IF EXISTS] table_name [, table_name] ...
+-- [RESTRICT | CASCADE]
+
+-- column_name data_type [GENERATED ALWAYS] AS (expression)
+--    [VIRTUAL | STORED] [UNIQUE [KEY]]
+
+alter table test add data varchar(20);
+alter table test modify  data varchar(20) generated always as (concat(id,name)) stored;
+select * from test;
+
+alter table test
+alter column id
+set default 5;
+
+insert into test(name) values ("Govind"),("Minal");
+select * from test;
+
+alter table test
+alter column id
+drop default;
+
+insert into test(name) values ("Govind"),("Minal");
+select * from test;
+
+drop table test;
+
+CREATE TABLE parts (
+    part_no VARCHAR(18) PRIMARY KEY,
+    description VARCHAR(40),
+    cost DECIMAL(10,2 ) NOT NULL CHECK (cost >= 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    CONSTRAINT parts_chk_price_gt_cost 
+        CHECK(price >= cost)
+);
+
+-- ALTER TABLE table_name
+-- ADD CONSTRAINT contraint_name
+-- CHECK (expression);
+
+-- ALTER TABLE table_name
+-- DROP constraint constraint_name;
+
+-- ALTER TABLE table_name
+-- DROP CHECK constraint_name;
+
+use practice;
+with cte_avg as (select avg(salary) as av from employees)
+select emp_id from employees where salary > (select av from cte_avg);
